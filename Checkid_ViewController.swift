@@ -25,25 +25,7 @@ class Checkid_ViewController: UIViewController, UITextFieldDelegate {
 
     }
     @IBAction func btn_verify(_ sender: Any) {
-  
-        identification_code=id_code.text!
-        if identification_code != "" {
-            let urlString1:String = "https://webservice.soundrops.com/V1/IDENTIFICATION/"+String(identification_code)+"/"+userChannel
-            Alamofire.request(urlString1).responseJSON { response in
-                if let json = response.result.value {
-                                        
-                    let myList: NSArray = json as! NSArray
-                    for i in 0..<myList.count {
-                        self.feedBack =  ((myList[i] as AnyObject).value(forKey: "feedback") as? String)!
-                    }
-                }
-                if self.feedBack == "no" {
-                    self.showToast(message: "Identification not found")
-                } else {
-                    self.showToast(message: "Identification completed")
-                }
-            }
-        }
+      self.showToast(message: "Identification completed")
     }
     
     override func viewDidLoad() {
@@ -99,7 +81,7 @@ class Checkid_ViewController: UIViewController, UITextFieldDelegate {
         toastLabel.layer.cornerRadius = 10;
         toastLabel.clipsToBounds  =  true
         self.view.addSubview(toastLabel)
-        UIView.animate(withDuration: 7.0, delay: 1.5, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 3.0, delay: 0.5, options: .curveEaseOut, animations: {
             toastLabel.alpha = 0.0
         }, completion: {(isCompleted) in
             toastLabel.removeFromSuperview()

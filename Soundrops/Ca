@@ -1,0 +1,22 @@
+//
+//  CategoryTableViewCell.swift
+//  Soundrops
+//
+//  Created by Jan Erik Meidell on 18.06.18.
+//  Copyright © 2018 Jan Erik Meidell. All rights reserved.
+//
+
+import UIKit
+
+class CategorTableViewCell: UITableViewCell {
+    
+    
+
+    
+}
+
+extension UIView {
+    func ApplyDesign() {
+        self.backgroundColor = UIColor.darkGray
+    }
+}

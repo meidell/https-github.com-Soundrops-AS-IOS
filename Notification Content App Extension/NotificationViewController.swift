@@ -159,11 +159,15 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
                 }
             }
             
+            let companyName = String(PusherNotificationData["company"] as! String)
+            self.lbl_company_name?.text = companyName
+                
         }
         
-        self.lbl_company_name?.text = notification.request.content.title
-        self.lbl_message?.text = notification.request.content.body
-        self.lbl_headline?.text = notification.request.content.subtitle
+
+       // self.lbl_company_name?.text = companyName//notification.request.content.title
+      //  self.lbl_message?.text = notification.request.content.body
+      //  self.lbl_headline?.text = notification.request.content.subtitle
         if self.lbl_company_name?.text == "Share//50 Community" {
             self.img_logo.isHidden = true
         } else {
