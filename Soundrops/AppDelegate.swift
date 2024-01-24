@@ -22,8 +22,6 @@ class AppDelegate: UIResponder,UIApplicationDelegate  {
        window?.overrideUserInterfaceStyle = .light
         isConnectedtoWifi = c_wifi.isWiFiConnected()
         
-
-        
         c_wifi.getLocation()
 
         handleKeyChain()

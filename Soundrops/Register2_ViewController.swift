@@ -156,7 +156,6 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
             let params = "/"+userChannel+"/"+String(userpostlat)+"/"+String(userpostlon)
             c_api.getrequest(params: params, key: "getuser") {
                 myuser.userprofile = 1
-                print("done")
                 KeychainSwift().set("1", forKey: "profile")
             }
         }
@@ -270,14 +269,14 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
     
     // Show the popup to the user if we have been deined access
     func showLocationDisabledPopUp() {
-        let alertController = UIAlertController(title: "Background Location Access Disabled",
-                                                message: "In order to sign in we need your location",
+        let alertController = UIAlertController(title: "Lokasjon er slått av",
+                                                message: "Skru på lokalisering for å logge på.",
                                                 preferredStyle: .alert)
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: "Avbryt", style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
         
-        let openAction = UIAlertAction(title: "Open Settings", style: .default) { (action) in
+        let openAction = UIAlertAction(title: "Åpne preferanser", style: .default) { (action) in
             if let url = URL(string: UIApplication.openSettingsURLString) {
                 UIApplication.shared.open(url, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
             }

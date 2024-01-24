@@ -25,7 +25,10 @@ class Checkid_ViewController: UIViewController, UITextFieldDelegate {
 
     }
     @IBAction func btn_verify(_ sender: Any) {
-      self.showToast(message: "Identification completed")
+        
+        c_api.patchrequest(company: "", key: "pairphone", action: id_code.text ?? "") {
+            self.showToast(message: "Token er sent. Vent for bekreftelse på notifikasjon.")
+        }
     }
     
     override func viewDidLoad() {
@@ -34,7 +37,7 @@ class Checkid_ViewController: UIViewController, UITextFieldDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(Checkid_ViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(Checkid_ViewController.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        id_code.text =  userChannel
+      //  id_code.text =  userChannel
         
         
         self.id_code.delegate = self
@@ -49,6 +52,14 @@ class Checkid_ViewController: UIViewController, UITextFieldDelegate {
         id_code.layer.shadowOpacity = 0.5
         id_code.layer.shadowRadius = 1.2
         id_code.layer.shadowOffset = CGSize(width: 0, height: 2)
+       
+        let placeholderText = "Skrive inn token her."
+               let attributes: [NSAttributedString.Key: Any] = [
+                   .foregroundColor: UIColor.lightGray,   // Set the color you want
+                   .font: UIFont.systemFont(ofSize: 20)  // Set the font size you want
+               ]
+        id_code.attributedPlaceholder = NSAttributedString(string: placeholderText, attributes: attributes)
+
         
         let myColour = UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
         btnBack.frame.size.width=btnBack.frame.height

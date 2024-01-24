@@ -8,7 +8,7 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     @IBOutlet weak var img_heart: UIImageView!
     @IBOutlet weak var cellCampaign: UITableView!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var btnFavourites: UIButton!
+   // @IBOutlet weak var btnFavourites: UIButton!
     @IBOutlet weak var btnCategory: UIButton!
     @IBOutlet weak var btnHome: UIButton!
 
@@ -54,7 +54,6 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
                 )
                 // Insert the new ad at every third position
                 let insertionIndex = index * 3 + 2
-                print(Ads!.count,insertionIndex)
                 Ads?.insert(communityAd, at: insertionIndex)
             }
             // Create an ads element using the properties from wsyc
@@ -129,22 +128,22 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         btnHome.setImage(image1, for: .normal)
         btnHome.imageView?.contentMode = .scaleAspectFit
         
-        btnFavourites.frame.size.width=btnFavourites.frame.height
-        btnFavourites.backgroundColor = .white
-        btnFavourites.layer.cornerRadius = btnFavourites.frame.width / 2
-        btnFavourites.layer.borderWidth = 1
-        btnFavourites.layer.borderColor = myColour2.cgColor
-        btnFavourites.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
-        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        if didScroll == false {
-            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
-            btnFavourites.imageView?.contentMode = .scaleAspectFit
-        } else {
-            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.red, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
-            btnFavourites.imageView?.contentMode = .scaleAspectFit
-        }
+//        btnFavourites.frame.size.width=btnFavourites.frame.height
+//        btnFavourites.backgroundColor = .white
+//        btnFavourites.layer.cornerRadius = btnFavourites.frame.width / 2
+//        btnFavourites.layer.borderWidth = 1
+//        btnFavourites.layer.borderColor = myColour2.cgColor
+//        btnFavourites.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
+//        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+//        if didScroll == false {
+//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+//            btnFavourites.setImage(image2, for: .normal)
+//            btnFavourites.imageView?.contentMode = .scaleAspectFit
+//        } else {
+//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.red, renderingMode: .alwaysOriginal)
+//            btnFavourites.setImage(image2, for: .normal)
+//            btnFavourites.imageView?.contentMode = .scaleAspectFit
+//        }
         didScroll=false
 
         btnCategory.frame.size.width=btnCategory.frame.height
@@ -163,14 +162,14 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         view.backgroundColor = UIColor(red: 243/255, green: 243/255, blue: 243/255, alpha: 1)
         self.tableView.backgroundColor = UIColor(red: 243/255, green: 243/255, blue: 243/255, alpha: 1)
 
-        switch cmptype {
-        case "follow":
-            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
-        default:
-            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
-        }
+//        switch cmptype {
+//        case "follow":
+//            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal)
+//            btnFavourites.setImage(image2, for: .normal)
+//        default:
+//            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+//            btnFavourites.setImage(image2, for: .normal)
+//        }
     }
     
     @IBAction func btnHome(_ sender: Any) {
@@ -180,13 +179,13 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     @IBAction func btnFavourites(_ sender: Any) {
         
         switch cmptype {
-        case "follow":
-            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
-            cmptype = "myads"
+      //  case "follow":
+//            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+//            btnFavourites.setImage(image2, for: .normal)
+//            cmptype = "myads"
         default:
-            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
+        //    let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal)
+        //    btnFavourites.setImage(image2, for: .normal)
             cmptype = "follow"
         }
         if cmptype == "myads" {
@@ -221,7 +220,7 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
                UIView.animate(withDuration: 0.1, delay: 0, animations: {
                    self.btnHome.alpha = 1
                    self.btnCategory.alpha = 1
-                   self.btnFavourites.alpha = 1
+               //    self.btnFavourites.alpha = 1
                }, completion: nil)
            } else {
                // swipes from bottom to top of screen -> up
@@ -229,7 +228,7 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
                    UIView.animate(withDuration: 0.5, delay: 0, animations: {
                        self.btnHome.alpha = 0
                        self.btnCategory.alpha = 0
-                       self.btnFavourites.alpha = 0
+                //       self.btnFavourites.alpha = 0
                    }, completion: nil)
                }
                didScroll = true
@@ -241,7 +240,7 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
             return 340
         } else {
             if myWsyc && indexPath.row == 1 {
-                return 240
+                return 300
             } else {
                 return 130
             }
@@ -268,15 +267,13 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         cell.lbl_title.lineBreakMode = .byWordWrapping
         cell.lbl_title.frame = CGRect(x: 150, y: 30, width: 130, height: 80)
         
-        cell.lblCompany.text=Ads?[indexPath.row].companyname!.uppercased()
-
         if myHeight == 0 { myHeight = cell.img_campaign.frame.height}
         cell.img_campaign.backgroundColor = UIColor.white
         cell.img_campaign.alpha = 1
         cell.img_campaign.layer.masksToBounds = true
         cell.img_campaign.clipsToBounds=true
         cell.img_campaign.layer.cornerRadius = 10
-        cell.img_campaign.frame = CGRect(x: 1, y: 36, width: myHeight/0.68, height: myHeight)
+        cell.img_campaign.frame = CGRect(x: 1, y: 30, width: myHeight/0.68, height: myHeight+6)
         cell.img_campaign.layer.maskedCorners = [ .layerMinXMaxYCorner]
         let getImage = Ads?[indexPath.row].logo
         Alamofire.request(getImage!).responseImage { [self] response in
@@ -299,6 +296,9 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         cell.lblCompany.frame.origin.x = 10
         cell.img_arrow.isHidden = true
         
+        cell.lblCompany.text=Ads?[indexPath.row].companyname!.uppercased()
+        cell.lblCompany.frame = CGRect(x: 10, y: 13, width: 300, height: 10)
+        
         if  Ads?[indexPath.row].companyname == "Community" {
             let width:CGFloat = cell.frame.size.width-4
             let height:CGFloat = cell.frame.size.width*0.64
@@ -307,15 +307,27 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
             cell.img_back.frame.size.height=330
             cell.lbl_title.frame = CGRect(x: 30, y: 200, width: 130, height: 80)
         }
-        print(indexPath.row,myWsyc)
         if indexPath.row == 1 && myWsyc {
+            
             let width:CGFloat = cell.frame.size.width-4
             let height:CGFloat = cell.frame.size.width*0.64
-            cell.img_campaign.frame = CGRect(x: 1, y: 30, width: 0.5*width, height: 0.5*height)
+            cell.img_campaign.frame = CGRect(x: 0.2*width, y: 30, width: 0.6*width, height: 0.7*height)
             cell.img_campaign.layer.cornerRadius = 0
-            cell.img_back.frame.size.height=240
-            cell.lbl_title.frame = CGRect(x: 30, y: 240, width: 130, height: 80)
-            cell.lbl_title.text = "We support your choice"
+            cell.img_back.frame.size.height=285
+            cell.lbl_title.frame = CGRect(x: 0.1*width, y: 190, width: 0.8*width, height: 80)
+            cell.lbl_title.textAlignment = .center
+            cell.lbl_title.text = "Thank you for supporting your organisation!"
+            cell.lbl_title.font = UIFont.systemFont(ofSize: 12.0, weight: .regular)
+
+            cell.lblCompany.text=""
+            
+            let subview = UIView(frame: CGRect(x: 0, y: 0, width: cell.bounds.width, height: 50))
+            let imageView = UIImageView(frame: CGRect(x: 0.2*width, y: 180, width: 0.6*width, height: 40))
+            imageView.image = UIImage(named: "wesupport")
+            imageView.contentMode = .scaleAspectFit
+            subview.addSubview(imageView)
+            cell.contentView.addSubview(subview)
+            
 
         }
 
@@ -327,6 +339,8 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         }
         return cell
     }
+    
+    
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if  Ads?[indexPath.row].companyname! == "Community" || Ads?[indexPath.row].headline! == wsyc?.slogan || (Ads?[indexPath.row].headline)! == "Coming soon" {

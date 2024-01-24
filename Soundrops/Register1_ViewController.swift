@@ -13,11 +13,7 @@ class Register1_ViewController: UIViewController, UITableViewDelegate, UITableVi
     @IBOutlet weak var tableview: UITableView!
     
     @IBAction func btnInfo(_ sender: Any) {
-        
-        let alert = UIAlertController(title: "New organizations", message: "New organisations are registered on an ongoing basis. In the meantime, please choose the Share//50 Community Fund. As soon as your favorite organisation is registered you can switch by accessing your profile. Your new organisation will be forwarded your temporarily established funds on the day of transfer.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-        }))
-        self.present(alert, animated: true, completion: nil)
+        self.performSegue(withIdentifier: "register1_to_feedback", sender: self)
     }
     
     override func viewDidLoad() {
@@ -35,6 +31,23 @@ class Register1_ViewController: UIViewController, UITableViewDelegate, UITableVi
                
         tableview.dataSource = self
         tableview.delegate = self
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            tableview.frame.size.height = tableview.frame.size.height - keyboardSize.height * 0.8
+                
+              }
+      
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        let contentInsets = UIEdgeInsets.zero
+               tableview.contentInset = contentInsets
+               tableview.scrollIndicatorInsets = contentInsets
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -84,3 +97,5 @@ class Register1_ViewController: UIViewController, UITableViewDelegate, UITableVi
         return true
     }
 }
+
+

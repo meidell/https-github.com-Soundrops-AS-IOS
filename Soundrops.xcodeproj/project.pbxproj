@@ -13,6 +13,7 @@
 		710951D820C6CFE500BA7655 /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 710951D720C6CFE500BA7655 /* Accounts.framework */; };
 		710951DA20C6CFEA00BA7655 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 710951D920C6CFEA00BA7655 /* Social.framework */; };
 		71100ABE297843120082E184 /* Structures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71100ABD297843120082E184 /* Structures.swift */; };
+		71239D9B2B5EBE6100099D25 /* Feedback_ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71239D9A2B5EBE6100099D25 /* Feedback_ViewController.swift */; };
 		712CB5E4295C921700ECEA89 /* Perks_ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712CB5E3295C921700ECEA89 /* Perks_ViewController.swift */; };
 		712F805122E0C12E00AA3117 /* CustomInfoWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 712F805022E0C12E00AA3117 /* CustomInfoWindow.xib */; };
 		714DC9CF21A56FF300435FBA /* Checkid_ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714DC9CE21A56FF300435FBA /* Checkid_ViewController.swift */; };
@@ -111,6 +112,7 @@
 		710951D720C6CFE500BA7655 /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
 		710951D920C6CFEA00BA7655 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		71100ABD297843120082E184 /* Structures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Structures.swift; sourceTree = "<group>"; };
+		71239D9A2B5EBE6100099D25 /* Feedback_ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback_ViewController.swift; sourceTree = "<group>"; };
 		712CB5E3295C921700ECEA89 /* Perks_ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Perks_ViewController.swift; sourceTree = "<group>"; };
 		712F805022E0C12E00AA3117 /* CustomInfoWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = CustomInfoWindow.xib; path = ../CustomInfoWindow.xib; sourceTree = "<group>"; };
 		7133FE2F20CA9E6E00A8E44B /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
@@ -128,6 +130,8 @@
 		7175F39320BECE5000322EC3 /* PusherNotifications.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PusherNotifications.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7175F39720BECE5000322EC3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7175F39E20BEDAB500322EC3 /* PusherNotifications.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PusherNotifications.entitlements; sourceTree = "<group>"; };
+		7177B6292B5E72A900905B4D /* Soundrops-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Soundrops-Bridging-Header.h"; sourceTree = "<group>"; };
+		7177B62A2B5E72AB00905B4D /* RecommendClub_ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecommendClub_ViewController.h; sourceTree = "<group>"; };
 		717AE84122CB8D3F00D4B43F /* NotificationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		717AE84722CB9F9800D4B43F /* Notification Content App Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Notification Content App Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		717AE84B22CB9F9800D4B43F /* NotificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewController.swift; sourceTree = "<group>"; };
@@ -303,9 +307,12 @@
 				71AD276B21416EA1004750FE /* Profile1_ViewController.swift */,
 				71AD276D21417409004750FE /* Profile2_ViewController.swift */,
 				71AD276F2141757B004750FE /* Profile3_ViewController.swift */,
+				71239D9A2B5EBE6100099D25 /* Feedback_ViewController.swift */,
 				71D85C2B20A76B9700ACFEEF /* Images */,
 				71919FF320A0272A004AC2AB /* Assets.xcassets */,
 				71100ABD297843120082E184 /* Structures.swift */,
+				7177B62A2B5E72AB00905B4D /* RecommendClub_ViewController.h */,
+				7177B6292B5E72A900905B4D /* Soundrops-Bridging-Header.h */,
 			);
 			path = Soundrops;
 			sourceTree = "<group>";
@@ -463,7 +470,7 @@
 					};
 					71919FE520A02729004AC2AB = {
 						CreatedOnToolsVersion = 9.3;
-						LastSwiftMigration = 1020;
+						LastSwiftMigration = 1520;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -691,6 +698,7 @@
 				71100ABE297843120082E184 /* Structures.swift in Sources */,
 				71F16BA520D7AC26000C38EE /* Category_ViewController.swift in Sources */,
 				714E79F2295EAEF60058F447 /* PerksSingle_ViewController.swift in Sources */,
+				71239D9B2B5EBE6100099D25 /* Feedback_ViewController.swift in Sources */,
 				71D74F70238BFEE400F2B406 /* Learning_1_ViewController.swift in Sources */,
 				71F10675262E1C5B00524D92 /* Soundrops.xcdatamodeld in Sources */,
 				71C2DF0B234FC0D5000D6672 /* Campaign_Detail_Cell.swift in Sources */,
@@ -978,11 +986,12 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_ENTITLEMENTS = Soundrops/Soundrops.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = QT5GLVAPV5;
 				INFOPLIST_FILE = Soundrops/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Share50;
@@ -991,11 +1000,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.1;
+				MARKETING_VERSION = 8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = soundropsios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Soundrops/Soundrops-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -1007,11 +1018,12 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_ENTITLEMENTS = Soundrops/Soundrops.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = QT5GLVAPV5;
 				"FRAMEWORK_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
@@ -1046,11 +1058,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 8.1;
+				MARKETING_VERSION = 8.2;
 				PRODUCT_BUNDLE_IDENTIFIER = soundropsios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Soundrops/Soundrops-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				"SYSTEM_FRAMEWORK_SEARCH_PATHS[arch=*]" = /Users/janerikmeidell/Dropbox/Lexigo/Clients/Soundrops/Soundrops_iphone_app/google_signin_sdk_4_4_0;
 				TARGETED_DEVICE_FAMILY = 1;

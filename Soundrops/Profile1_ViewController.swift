@@ -19,19 +19,112 @@ class Profile1_ViewController: UIViewController {
     @IBOutlet weak var btnProfile: UIButton!
     @IBOutlet weak var btnHome: UIButton!
     @IBOutlet weak var btnDelete: UIButton!
+    @IBOutlet weak var btnAnb: UIButton!
+    
+    
+    override func viewDidLoad() {
+         super.viewDidLoad()
+        
+        
+
+         let myColour = UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
+         let white = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
+        
+        btnHome.frame.size.width=btnHome.frame.height
+        btnHome.backgroundColor = .white
+        btnHome.layer.cornerRadius = btnHome.frame.width / 2
+        btnHome.layer.borderWidth = 1
+        btnHome.layer.borderColor = myColour.cgColor
+        btnHome.layer.backgroundColor = white.cgColor
+        let largeConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+        let image = UIImage(systemName: "house.fill", withConfiguration: largeConfig)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+        btnHome.setImage(image, for: .normal)
+        btnHome.imageView?.contentMode = .scaleAspectFit
+        
+         btnProfile.frame.size.width=btnProfile.frame.height
+         btnProfile.layer.cornerRadius = btnProfile.frame.width / 2
+         btnProfile.layer.borderWidth = 1
+         btnProfile.layer.borderColor = myColour.cgColor
+         btnProfile.layer.backgroundColor = white.cgColor
+         let largeConfig1 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+         let image1 = UIImage(systemName: "person.crop.circle.fill", withConfiguration: largeConfig1)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+         btnProfile.setImage(image1, for: .normal)
+         btnProfile.imageView?.contentMode = .scaleAspectFit
+
+         btnAudio.frame.size.width=btnAudio.frame.height
+         btnAudio.layer.cornerRadius = btnAudio.frame.width / 2
+         btnAudio.layer.borderWidth = 1
+         btnAudio.layer.borderColor = myColour.cgColor
+         btnAudio.layer.backgroundColor = white.cgColor
+         let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+         let image2 = UIImage(systemName: "speaker.square", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+         btnAudio.setImage(image2, for: .normal)
+         btnAudio.imageView?.contentMode = .scaleAspectFit
+
+         btnAbout.frame.size.width=btnAbout.frame.height
+         btnAbout.layer.cornerRadius = btnAbout.frame.width / 2
+         btnAbout.layer.borderWidth = 1
+         btnAbout.layer.borderColor = myColour.cgColor
+         btnAbout.layer.backgroundColor = white.cgColor
+         let largeConfig3 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+         let image3 = UIImage(systemName: "person.2.fill", withConfiguration: largeConfig3)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+         btnAbout.setImage(image3, for: .normal)
+         btnAbout.imageView?.contentMode = .scaleAspectFit
+        
+        btnAnb.frame.size.width=btnAnb.frame.height
+        btnAnb.layer.cornerRadius = btnAnb.frame.width / 2
+        btnAnb.layer.borderWidth = 1
+        btnAnb.layer.borderColor = myColour.cgColor
+        btnAnb.layer.backgroundColor = white.cgColor
+        let largeConfig7 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+        let image7 = UIImage(systemName: "person.2.fill", withConfiguration: largeConfig7)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+        btnAnb.setImage(image7, for: .normal)
+        btnAnb.imageView?.contentMode = .scaleAspectFit
+
+         btnAdvertiser.frame.size.width=btnAdvertiser.frame.height
+         btnAdvertiser.layer.cornerRadius = btnAdvertiser.frame.width / 2
+         btnAdvertiser.layer.borderWidth = 1
+         btnAdvertiser.layer.borderColor = myColour.cgColor
+         btnAdvertiser.layer.backgroundColor = white.cgColor
+         let largeConfig4 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+         let image4 = UIImage(systemName: "iphone", withConfiguration: largeConfig4)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+         btnAdvertiser.setImage(image4, for: .normal)
+         btnAdvertiser.imageView?.contentMode = .scaleAspectFit
+
+         btnPolicy.frame.size.width=btnPolicy.frame.height
+         btnPolicy.layer.cornerRadius = btnPolicy.frame.width / 2
+         btnPolicy.layer.borderWidth = 1
+         btnPolicy.layer.borderColor = myColour.cgColor
+         btnPolicy.layer.backgroundColor = white.cgColor
+         let largeConfig5 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+         let image5 = UIImage(systemName: "filemenu.and.cursorarrow", withConfiguration: largeConfig5)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+         btnPolicy.setImage(image5, for: .normal)
+         btnPolicy.imageView?.contentMode = .scaleAspectFit
+        
+        btnDelete.frame.size.width=btnDelete.frame.height
+        btnDelete.layer.cornerRadius = btnDelete.frame.width / 2
+        btnDelete.layer.borderWidth = 1
+        btnDelete.layer.borderColor = myColour.cgColor
+        btnDelete.layer.backgroundColor = white.cgColor
+        let largeConfig6 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+        let image6 = UIImage(systemName: "xmark", withConfiguration: largeConfig6)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+        btnDelete.setImage(image6, for: .normal)
+        btnDelete.imageView?.contentMode = .scaleAspectFit
+     }
+    
     
     @IBAction func btnDelete(_ sender: Any) {
                               
-        let alert = UIAlertController(title: "Discontinue use", message: "Thank you for using our service. By confirming delete, all your personal and history will be deleted from our systems. Welcome back any time.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Du blir nå slettet.", message: "Takk for at du bruker tjenesten vår. Ved å bekrefte sletting vil all din personlige og historie bli slettet fra systemene våre. Velkommen tilbake når som helst.", preferredStyle: .alert)
 
-        let yesAction = UIAlertAction(title: "Delete me", style: .default) { (action) in
+        let yesAction = UIAlertAction(title: "Slett min profil.", style: .default) { (action) in
             c_api.deleterequest(channel: userChannel) { success in
                 DispatchQueue.main.async {
                     if success {
                         newUser = true
                         self.performSegue(withIdentifier: "profile1_to_start1", sender: self)
                     } else {
-                        let alert1 = UIAlertController(title: "You were not deleted", message: "We are sorry, but there was a technical issue. Try later or contact Soundrops.", preferredStyle: .actionSheet)
+                        let alert1 = UIAlertController(title: "Du ble ikke slettet.", message: "Vi beklager, men det oppsto et teknisk problem. Prøv senere eller kontakt oss.", preferredStyle: .actionSheet)
                         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
                         alert1.addAction(okAction)
                         self.present(alert1, animated: true, completion: nil)
@@ -39,7 +132,7 @@ class Profile1_ViewController: UIViewController {
                 }
             }
         }
-        let noAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let noAction = UIAlertAction(title: "Avbryt", style: .cancel, handler: nil)
         alert.addAction(yesAction)
         alert.addAction(noAction)
         self.present(alert, animated: true, completion: nil)
@@ -47,7 +140,12 @@ class Profile1_ViewController: UIViewController {
     
     @IBAction func btnHome(_ sender: Any) {
         self.performSegue(withIdentifier: "profile1_to_dashboard", sender: self)
+
     }
+    @IBAction func btnAnb(_ sender: Any) {
+        self.performSegue(withIdentifier: "profile_to_anbefal", sender: self)
+    }
+    
     @IBAction func btnProfile(_ sender: Any) {
         self.performSegue(withIdentifier: "profile1_to_register2", sender: self)
     }
@@ -62,86 +160,9 @@ class Profile1_ViewController: UIViewController {
 
     }
     @IBAction func btnPolicy(_ sender: Any) {
-      //  if let url = URL(string: "https://www.soundrops.com/policy") {
-        //    UIApplication.shared.open(url, options: [:])}
+        if let url = URL(string: "https://www.share50.no/policy") {
+            UIApplication.shared.open(url, options: [:])}
     }
-
     
-   override func viewDidLoad() {
-        super.viewDidLoad()
-
-        let myColour = UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
-        let white = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
-       
-       btnHome.frame.size.width=btnHome.frame.height
-       btnHome.backgroundColor = .white
-       btnHome.layer.cornerRadius = btnHome.frame.width / 2
-       btnHome.layer.borderWidth = 1
-       btnHome.layer.borderColor = myColour.cgColor
-       btnHome.layer.backgroundColor = white.cgColor
-       let largeConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-       let image = UIImage(systemName: "house.fill", withConfiguration: largeConfig)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-       btnHome.setImage(image, for: .normal)
-       btnHome.imageView?.contentMode = .scaleAspectFit
-       
-        btnProfile.frame.size.width=btnProfile.frame.height
-        btnProfile.layer.cornerRadius = btnProfile.frame.width / 2
-        btnProfile.layer.borderWidth = 1
-        btnProfile.layer.borderColor = myColour.cgColor
-        btnProfile.layer.backgroundColor = white.cgColor
-        let largeConfig1 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        let image1 = UIImage(systemName: "person.crop.circle.fill", withConfiguration: largeConfig1)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-        btnProfile.setImage(image1, for: .normal)
-        btnProfile.imageView?.contentMode = .scaleAspectFit
-
-        btnAudio.frame.size.width=btnAudio.frame.height
-        btnAudio.layer.cornerRadius = btnAudio.frame.width / 2
-        btnAudio.layer.borderWidth = 1
-        btnAudio.layer.borderColor = myColour.cgColor
-        btnAudio.layer.backgroundColor = white.cgColor
-        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        let image2 = UIImage(systemName: "speaker.square", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-        btnAudio.setImage(image2, for: .normal)
-        btnAudio.imageView?.contentMode = .scaleAspectFit
-
-        btnAbout.frame.size.width=btnAbout.frame.height
-        btnAbout.layer.cornerRadius = btnAbout.frame.width / 2
-        btnAbout.layer.borderWidth = 1
-        btnAbout.layer.borderColor = myColour.cgColor
-        btnAbout.layer.backgroundColor = white.cgColor
-        let largeConfig3 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        let image3 = UIImage(systemName: "person.2.fill", withConfiguration: largeConfig3)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-        btnAbout.setImage(image3, for: .normal)
-        btnAbout.imageView?.contentMode = .scaleAspectFit
-
-        btnAdvertiser.frame.size.width=btnAdvertiser.frame.height
-        btnAdvertiser.layer.cornerRadius = btnAdvertiser.frame.width / 2
-        btnAdvertiser.layer.borderWidth = 1
-        btnAdvertiser.layer.borderColor = myColour.cgColor
-        btnAdvertiser.layer.backgroundColor = white.cgColor
-        let largeConfig4 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        let image4 = UIImage(systemName: "iphone", withConfiguration: largeConfig4)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-        btnAdvertiser.setImage(image4, for: .normal)
-        btnAdvertiser.imageView?.contentMode = .scaleAspectFit
-
-        btnPolicy.frame.size.width=btnPolicy.frame.height
-        btnPolicy.layer.cornerRadius = btnPolicy.frame.width / 2
-        btnPolicy.layer.borderWidth = 1
-        btnPolicy.layer.borderColor = myColour.cgColor
-        btnPolicy.layer.backgroundColor = white.cgColor
-        let largeConfig5 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        let image5 = UIImage(systemName: "filemenu.and.cursorarrow", withConfiguration: largeConfig5)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-        btnPolicy.setImage(image5, for: .normal)
-        btnPolicy.imageView?.contentMode = .scaleAspectFit
-       
-       btnDelete.frame.size.width=btnDelete.frame.height
-       btnDelete.layer.cornerRadius = btnDelete.frame.width / 2
-       btnDelete.layer.borderWidth = 1
-       btnDelete.layer.borderColor = myColour.cgColor
-       btnDelete.layer.backgroundColor = white.cgColor
-       let largeConfig6 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-       let image6 = UIImage(systemName: "xmark", withConfiguration: largeConfig6)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-       btnDelete.setImage(image6, for: .normal)
-       btnDelete.imageView?.contentMode = .scaleAspectFit
-    }
+ 
 }

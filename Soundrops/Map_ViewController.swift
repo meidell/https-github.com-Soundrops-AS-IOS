@@ -30,8 +30,26 @@ class Map_ViewController: UIViewController, GMSMapViewDelegate, UICollectionView
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if cmptype == "myads" {Ads = myAds}
-        if cmptype == "nearby" {Ads = nearbyAds}
+        if cmptype == "myads" { Ads = myAds?.filter { $0.headline != "Coming soon" }}
+        if cmptype == "nearby" {Ads = nearbyAds?.filter { $0.headline != "Coming soon" }}
+        if cmptype == "follow" {
+            if let ads = myAds {
+                Ads = ads.filter { $0.following == 1 }
+            }
+            if let ads = nearbyAds {
+                let filteredAds = ads.filter { $0.following == 1 }
+                Ads! += filteredAds
+            }
+        }
+        if cmptype == "category" {
+            if let ads = myAds {
+                Ads = ads.filter { $0.adcategory == userCategory }
+            }
+            if let ads = nearbyAds {
+                let filteredAds = ads.filter { $0.adcategory == userCategory }
+                Ads! += filteredAds
+            }
+        }
         
         self.fldText.text = Ads?[cmpId].message
         self.lblTitle.text = Ads?[cmpId].headline!.uppercased()
@@ -101,15 +119,11 @@ class Map_ViewController: UIViewController, GMSMapViewDelegate, UICollectionView
         
         if let viewWithTag = self.view.viewWithTag(102) {viewWithTag.removeFromSuperview()}
         
-        let myWidth = (UIScreen.main.bounds.width)*0.5
-        let myHeight = (UIScreen.main.bounds.height)*0.80
-        let x = 0.00
-        let y = myHeight*0.092
+       // let myHeight = (UIScreen.main.bounds.height)*0.80
         var mapView:GMSMapView?
-        let mycol = UIColor(red: 230/255, green: 30/255, blue: 30/255, alpha: 1)
         
-        let lat = myAds?[cmpId].outlets![0].lat
-        let lon = myAds?[cmpId].outlets![0].lon
+        let lat = Ads?[cmpId].outlets![0].lat
+        let lon = Ads?[cmpId].outlets![0].lon
  
         mapView = GMSMapView.map(withFrame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: (UIScreen.main.bounds.height)*0.60), camera:
                                     GMSCameraPosition.camera(withLatitude: lat!, longitude: lon!, zoom: zoom))
@@ -122,7 +136,7 @@ class Map_ViewController: UIViewController, GMSMapViewDelegate, UICollectionView
         mapView!.delegate = self
         
         var bounds = GMSCoordinateBounds()
-        if let outlets = myAds?[cmpId].outlets {
+        if let outlets = Ads?[cmpId].outlets {
             for outlet in outlets {
                 let position = CLLocationCoordinate2D(latitude: outlet.lat!, longitude: outlet.lon!)
                 bounds = bounds.includingCoordinate(position)

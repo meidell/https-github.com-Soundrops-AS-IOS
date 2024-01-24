@@ -39,14 +39,15 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        c_api.getrequest(params: "", key: "getadcategories") {
+        }
+        
         filldashboard()
         
-        
-
         if isConnectedtoWifi {
             c_wifi.getLocation()
             if !isConnectedtoWifi {
-                let alert = UIAlertController(title: "No internet connection!", message: "This app requires internet to work. Please connect and try again.", preferredStyle: .alert)
+                let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
                 }))
                 self.present(alert, animated: true, completion: nil)
@@ -64,7 +65,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
             self.view.addGestureRecognizer(swipeUp)
         } else {
             
-            let alert = UIAlertController(title: "No internet connection!", message: "This app requires internet to work. Please connect and try again.", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
             }))
             self.present(alert, animated: true, completion: nil)
@@ -140,7 +141,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
         btnMyadds.layer.cornerRadius = 6
         btnMyadds.layer.borderWidth = 1
         btnMyadds.layer.borderColor = myColour.cgColor
-        let attributedString1 = NSAttributedString(string: NSLocalizedString("My Ads", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        let attributedString1 = NSAttributedString(string: NSLocalizedString("Mine tilbud", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnMyadds.setAttributedTitle(attributedString1, for: .normal)
         
         btnPerks.backgroundColor = .clear
@@ -154,7 +155,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
         btnCategory.layer.cornerRadius = 6
         btnCategory.layer.borderWidth = 1
         btnCategory.layer.borderColor = myColour.cgColor
-        let attributedString3 = NSAttributedString(string: NSLocalizedString("Category", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        let attributedString3 = NSAttributedString(string: NSLocalizedString("Kategorier", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnCategory.setAttributedTitle(attributedString3, for: .normal)
  
         btnSetting.backgroundColor = .clear
@@ -170,17 +171,17 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
         btnNearby.layer.cornerRadius = 6
         btnNearby.layer.borderWidth = 1
         btnNearby.layer.borderColor = myColour.cgColor
-        let attributedString4 = NSAttributedString(string: NSLocalizedString("Nearby", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        let attributedString4 = NSAttributedString(string: NSLocalizedString("Nær meg", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnNearby.setAttributedTitle(attributedString4, for: .normal)
         
         btnFavourites.backgroundColor = .clear
         btnFavourites.layer.cornerRadius = 6
         btnFavourites.layer.borderWidth = 1
         btnFavourites.layer.borderColor = myColour.cgColor
-        let attributedString5 = NSAttributedString(string: NSLocalizedString("Favourites", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        let attributedString5 = NSAttributedString(string: NSLocalizedString("Favoritter", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnFavourites.setAttributedTitle(attributedString5, for: .normal)
         
-        let attributedString6 = NSAttributedString(string: NSLocalizedString("ADVERTISER", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        let attributedString6 = NSAttributedString(string: NSLocalizedString("ANNONSØRER", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnAdvertisors.setAttributedTitle(attributedString6, for: .normal)
         
     }
@@ -188,8 +189,8 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
     func popupUpdateDialogue1(){
         
         userNotification = "0"
-        let alertMessage = "Please go to settings."
-        let alert = UIAlertController(title: "We noticed that notifications are disabled. This means that the fundraising potential is limited. In the meantime feel free to benefit from the many good offers in this app.", message: alertMessage, preferredStyle: UIAlertController.Style.alert)
+        let alertMessage = "Vennligst gå til innstillinger."
+        let alert = UIAlertController(title: "Vi la merke til at varsler er deaktivert. Dette betyr at innsamlingspotensialet er begrenset. I mellomtiden kan du gjerne dra nytte av de mange gode tilbudene i denne appen.", message: alertMessage, preferredStyle: UIAlertController.Style.alert)
         let okBtn = UIAlertAction(title: "OK", style: .default, handler: {(_ action: UIAlertAction) -> Void in
             
             let settingsUrl = URL(string: UIApplication.openSettingsURLString)
@@ -203,7 +204,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
                 }
             }
         })
-        let laterBtn = UIAlertAction(title: "Later", style: .default, handler: {(_ action: UIAlertAction) -> Void in
+        let laterBtn = UIAlertAction(title: "Senere", style: .default, handler: {(_ action: UIAlertAction) -> Void in
             saidLater = true
         })
         alert.addAction(okBtn)
@@ -214,8 +215,8 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
     
     func popupUpdateDialogue2(){
         
-        let alertMessage = "Please go to settings."
-        let alert = UIAlertController(title: "For this function, location services must be switched on", message: alertMessage, preferredStyle: UIAlertController.Style.alert)
+        let alertMessage = "Vennligst gå til innstillinger."
+        let alert = UIAlertController(title: "For denne funksjonen må lokaliseringstjenester være slått på.", message: alertMessage, preferredStyle: UIAlertController.Style.alert)
         let okBtn = UIAlertAction(title: "OK", style: .default, handler: {(_ action: UIAlertAction) -> Void in
             
             let settingsUrl = URL(string: UIApplication.openSettingsURLString)
@@ -282,7 +283,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
         if Reachability.isConnectedToNetwork(){
             self.performSegue(withIdentifier: "dashboard_to_profile1", sender: self)
         }else{
-            let alert = UIAlertController(title: "No internet connection!", message: "This app requires internet to work. Please connect and try again.", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
             }))
             self.present(alert, animated: true, completion: nil)
@@ -293,7 +294,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
     @IBAction func btnFavourites(_ sender: Any) {
         
         cmptype="follow"
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+       // DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             let trans = CATransition()
             trans.type = CATransitionType.moveIn
             trans.subtype = CATransitionSubtype.fromLeft
@@ -301,7 +302,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
             trans.duration = 0.25
             self.navigationController?.view.layer.add(trans, forKey: nil)
             self.performSegue(withIdentifier: "lists", sender: self)
-        }
+     //   }
     }
     
     @IBAction func btnMyAdds(_ sender: Any) {
@@ -317,7 +318,7 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
             self.navigationController?.view.layer.add(trans, forKey: nil)
             self.performSegue(withIdentifier: "lists", sender: self)
         }else{
-            let alert = UIAlertController(title: "No internet connection!", message: "This app requires internet to work. Please connect and try again.", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
             }))
             self.present(alert, animated: true, completion: nil)

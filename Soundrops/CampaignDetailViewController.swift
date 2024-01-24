@@ -123,8 +123,9 @@ class CampaignDetailViewController: UIViewController {
                 btn_sound.isHidden = false
                 
                 playerLayer.frame = self.view_player.bounds
-                playerLayer.frame.origin.x = self.voucherImage.frame.origin.x
+                playerLayer.frame.origin.x = 0
                 playerLayer.frame.origin.y = self.voucherImage.frame.origin.y
+                playerLayer.frame.size.width = UIScreen.main.bounds.width
                 
                 playerLayer.videoGravity = .resizeAspectFill
 
@@ -159,9 +160,9 @@ class CampaignDetailViewController: UIViewController {
                 if let image = response.result.value {
                     let imageView = UIImageView(image: image)
                     if  Ads?[cmpId].video != nil {
-                        imageView.frame = CGRect(x: self.voucherImage.frame.width*0.75, y:self.voucherImage.frame.height*1.05, width: self.voucherImage.frame.width*0.25, height: self.voucherImage.frame.width*0.25*0.64)
+                        imageView.frame = CGRect(x: self.voucherImage.frame.width*0.75, y:self.voucherImage.frame.height*1.02, width: self.voucherImage.frame.width*0.25, height: self.voucherImage.frame.width*0.25*0.64)
                     } else {
-                        imageView.frame = CGRect(x: self.voucherImage.frame.width*0.75, y:self.voucherImage.frame.height*1.05, width: self.voucherImage.frame.width*0.25, height: self.voucherImage.frame.width*0.25*0.64)
+                        imageView.frame = CGRect(x: self.voucherImage.frame.width*0.75, y:self.voucherImage.frame.height*1.02, width: self.voucherImage.frame.width*0.25, height: self.voucherImage.frame.width*0.25*0.64)
                     }
                     imageView.layer.masksToBounds = true
                     imageView.layer.cornerRadius = 8
@@ -219,7 +220,6 @@ class CampaignDetailViewController: UIViewController {
     
     func ButtonCss() {
 
-      //   let lat = Ads?[cmpId].outlets?[0].lat ?? 0
         if Ads?[cmpId].outlets != nil {
             map.isEnabled=true
         } else {
@@ -248,7 +248,7 @@ class CampaignDetailViewController: UIViewController {
         follow.layer.borderWidth = 1
         follow.layer.borderColor = myColour.cgColor
         follow.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
-        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+       // let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
 
         follow.imageView?.contentMode = .scaleAspectFit
         

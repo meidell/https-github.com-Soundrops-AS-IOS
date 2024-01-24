@@ -62,6 +62,13 @@ struct perk: Codable {
 }
 var perks: [perk]?
 
+struct lead: Codable {
+    var name: String?
+    var comment: String?
+}
+
+var mylead = lead()
+
 struct ads: Codable {
     let id: Int
     let headline: String?
@@ -186,6 +193,8 @@ class c_api {
         urls["following"]  = "https://appservice.share50.no/following"
         urls["stat"]  = "https://statservice.share50.no/stats/track"
         urls["discontinue"]  = "https://appservice.share50.no/discontinueuser"
+        urls["pairphone"]  = "https://appservice.share50.no/pair/update"
+        urls["insertlead"]  = "https://appservice.share50.no/reqorg/insert"
         
         return urls[key]
     }
@@ -243,6 +252,9 @@ class c_api {
             
             var jsonData: [String: Any] = [:]
             
+            if key == "pairphone" {
+                jsonData["token"] = action
+            }
             if key == "following" {
                 jsonData["company"] = company
             }
@@ -289,6 +301,16 @@ class c_api {
             
             var jsonData: [String: Any] = [:]
             
+            if key == "insertlead" {
+                jsonData["orgname"] = mylead.name
+                jsonData["channel"] = userChannel
+                jsonData["personname"] = mylead.comment
+                print(jsonData)
+                if let jsonData = try? JSONSerialization.data(withJSONObject: jsonData) {
+                    request.httpBody = jsonData
+                }
+            }
+            
             if key == "setappleuser" {
                 
                 jsonData["id_token"] = userToken
@@ -313,6 +335,7 @@ class c_api {
                 jsonData["userhometown"] = myuser.userhometown
                 jsonData["userpostcode"] = myuser.userpostcode
                 jsonData["notifications"] = "1"
+                print(jsonData)
                 if let jsonData = try? JSONSerialization.data(withJSONObject: jsonData) {
                     request.httpBody = jsonData
                 }
@@ -324,7 +347,6 @@ class c_api {
                     return
                 }
                 let httpResponse = response as? HTTPURLResponse
-
                 if httpResponse!.statusCode == 200 {
                     if key == "updateuser" {
                         let jsonResponse = try? JSONSerialization.jsonObject(with: data!, options: [])
@@ -333,6 +355,7 @@ class c_api {
                             KeychainSwift().set(myuser.username, forKey: "name")
                         }
                     }
+                   
                 } else {
                     print("Non-200 status code received: \(httpResponse!.statusCode)")
                     myuser.userprofile=0
@@ -347,7 +370,6 @@ class c_api {
         
         //endstring parameters
         let urlString = geturls(key: key)! + params
-        print(urlString)
         if let encodedURLString = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
            let url = URL(string: encodedURLString) {
             var request = URLRequest(url: url)
@@ -368,20 +390,52 @@ class c_api {
                     }
                     do {
                         if key == "getadcategories" {
+                            
+                            
                             let adcategories = try JSONDecoder().decode([adcategory].self, from: data)
                             var categoryList: [String: Int] = [:]
+
+                            // Create a set to track unique IDs for each category
+                            var processedIDs: Set<Int> = Set()
+
                             if let myAds = myAds, let nearbyAds = nearbyAds {
                                 for category in adcategories {
                                     myCategory[category.name] = category.originalid
+                                    
+                                    // Process myAds
                                     let myAdsCount = myAds.filter { $0.adcategory == category.originalid }.count
                                     categoryList[category.name] = (categoryList[category.name] ?? 0) + myAdsCount
+                                    // Add processed IDs to the set
+                                    processedIDs.formUnion(myAds.map { $0.id })
 
-                                    let nearbyAdsCount = nearbyAds.filter { $0.adcategory == category.originalid }.count
+                                    // Process nearbyAds only if the ID has not been processed before
+                                    let nearbyAdsCount = nearbyAds.filter { $0.adcategory == category.originalid && !processedIDs.contains($0.id) }.count
                                     categoryList[category.name] = (categoryList[category.name] ?? 0) + nearbyAdsCount
+                                    // Add processed IDs to the set
+                                    processedIDs.formUnion(nearbyAds.map { $0.id })
                                 }
+
+                                // Sort and filter the categoryList
                                 sortedCategoryList = categoryList.sorted { $0.key < $1.key }
                                 sortedCategoryList = sortedCategoryList.filter { $0.value > 0 }
                             }
+
+                            
+                            
+//                            let adcategories = try JSONDecoder().decode([adcategory].self, from: data)
+//                            var categoryList: [String: Int] = [:]
+//                            if let myAds = myAds, let nearbyAds = nearbyAds {
+//                                for category in adcategories {
+//                                    myCategory[category.name] = category.originalid
+//                                    let myAdsCount = myAds.filter { $0.adcategory == category.originalid }.count
+//                                    categoryList[category.name] = (categoryList[category.name] ?? 0) + myAdsCount 
+//
+//                                    let nearbyAdsCount = nearbyAds.filter { $0.adcategory == category.originalid }.count
+//                                    categoryList[category.name] = (categoryList[category.name] ?? 0) + nearbyAdsCount
+//                                }
+//                                sortedCategoryList = categoryList.sorted { $0.key < $1.key }
+//                                sortedCategoryList = sortedCategoryList.filter { $0.value > 0 }
+//                            }
                         }
                         if key == "getmainimages" {
                             mainimages = try JSONDecoder().decode([mainimage].self, from: data)
@@ -397,7 +451,6 @@ class c_api {
                             wsyc = items.wsyc
                             myorg = items.org
                             communities = items.community
-                            print(myAds)
                     
                         }
                         if key == "getorganisations" {

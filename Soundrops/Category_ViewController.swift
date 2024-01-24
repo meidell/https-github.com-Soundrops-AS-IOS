@@ -7,7 +7,7 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
     var categories = [Int: String]()
     
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var btnFavourites: UIButton!
+  //  @IBOutlet weak var btnFavourites: UIButton!
     @IBOutlet weak var btnHome: UIButton!
     @IBOutlet weak var btnBack: UIButton!
     
@@ -36,22 +36,22 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
         btnHome.setImage(image1, for: .normal)
         btnHome.imageView?.contentMode = .scaleAspectFit
         
-        btnFavourites.frame.size.width=btnFavourites.frame.height
-        btnFavourites.backgroundColor = .white
-        btnFavourites.layer.cornerRadius = btnFavourites.frame.width / 2
-        btnFavourites.layer.borderWidth = 1
-        btnFavourites.layer.borderColor = myColour2.cgColor
-        btnFavourites.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
-        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        if didScroll == false {
-            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
-            btnFavourites.imageView?.contentMode = .scaleAspectFit
-        } else {
-            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.red, renderingMode: .alwaysOriginal)
-            btnFavourites.setImage(image2, for: .normal)
-            btnFavourites.imageView?.contentMode = .scaleAspectFit
-        }
+//        btnFavourites.frame.size.width=btnFavourites.frame.height
+//        btnFavourites.backgroundColor = .white
+//        btnFavourites.layer.cornerRadius = btnFavourites.frame.width / 2
+//        btnFavourites.layer.borderWidth = 1
+//        btnFavourites.layer.borderColor = myColour2.cgColor
+//        btnFavourites.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
+//        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+//        if didScroll == false {
+//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+//            btnFavourites.setImage(image2, for: .normal)
+//            btnFavourites.imageView?.contentMode = .scaleAspectFit
+//        } else {
+//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.red, renderingMode: .alwaysOriginal)
+//            btnFavourites.setImage(image2, for: .normal)
+//            btnFavourites.imageView?.contentMode = .scaleAspectFit
+//        }
         didScroll=false
 
         btnBack.frame.size.width=btnBack.frame.height
@@ -70,24 +70,28 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
         performSegue(withIdentifier: "showCategoryinForme", sender: self)
     }
     
-    @IBAction func btnFavourites(_ sender: Any) {
-        switch g_mod {
-        case "follow":
-            g_mod=g_omd
-        default:
-            g_omd=g_mod
-            g_mod="follow"
-        }
-        performSegue(withIdentifier: "showCategoryinForme", sender: self)
-    }
-    
     @IBAction func btnHome(_ sender: Any) {
         performSegue(withIdentifier: "category_to_dashboard", sender: self)
+
     }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
+    //    @IBAction func btnFavourites(_ sender: Any) {
+//        switch g_mod {
+//        case "follow":
+//            g_mod=g_omd
+//        default:
+//            g_omd=g_mod
+//            g_mod="follow"
+//        }
+//        performSegue(withIdentifier: "showCategoryinForme", sender: self)
+//    }
+//    
+//    @IBAction func btnHome(_ sender: Any) {
+//        performSegue(withIdentifier: "category_to_dashboard", sender: self)
+//    }
+//    
+//    override func didReceiveMemoryWarning() {
+//        super.didReceiveMemoryWarning()
+//    }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
        
@@ -97,7 +101,7 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
                UIView.animate(withDuration: 0.1, delay: 0, animations: {
                    self.btnHome.alpha = 1
                    self.btnBack.alpha = 1
-                   self.btnFavourites.alpha = 1
+            //       self.btnFavourites.alpha = 1
                }, completion: nil)
            } else {
                // swipes from bottom to top of screen -> up
@@ -105,7 +109,7 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
                    UIView.animate(withDuration: 0.5, delay: 0, animations: {
                        self.btnHome.alpha = 0
                        self.btnBack.alpha = 0
-                       self.btnFavourites.alpha = 0
+              //         self.btnFavourites.alpha = 0
                    }, completion: nil)
                }
                didScroll = true

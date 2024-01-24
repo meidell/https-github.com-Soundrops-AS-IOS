@@ -21,7 +21,7 @@ class Splash_ViewController: UIViewController {
         self.navigationController?.isNavigationBarHidden = true
      
         if !isConnectedtoWifi {
-            let alert = UIAlertController(title: "No internet connection!", message: "This app requires internet to work. Please connect and try again.", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
             }))
             self.present(alert, animated: true, completion: nil)
@@ -29,7 +29,7 @@ class Splash_ViewController: UIViewController {
         
         
         if myuser.userprofile == 1 {
-            self.lbl_user_thanks.text="Welcome "+myuser.username.uppercased()
+            self.lbl_user_thanks.text="Velkommen "+myuser.username.uppercased()
             let params = "/"+userChannel+"/"+String(myuser.userlat)+"/"+String(myuser.userlon)
             c_api.getrequest(params: params, key: "getuser") {
                 if let wsyc = wsyc {
@@ -51,8 +51,6 @@ class Splash_ViewController: UIViewController {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.performSegue(withIdentifier: "Splash_to_Start_1", sender: self)
             }
-        }
-        c_api.getrequest(params: "", key: "getadcategories") {
         }
         c_api.getrequest(params: "", key: "getperk") {
         }
