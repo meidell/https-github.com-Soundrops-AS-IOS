@@ -25,7 +25,6 @@ class Checkid_ViewController: UIViewController, UITextFieldDelegate {
 
     }
     @IBAction func btn_verify(_ sender: Any) {
-        
         c_api.patchrequest(company: "", key: "pairphone", action: id_code.text ?? "") {
             self.showToast(message: "Token er sent. Vent for bekreftelse på notifikasjon.")
         }

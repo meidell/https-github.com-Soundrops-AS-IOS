@@ -51,11 +51,14 @@ class Map_ViewController: UIViewController, GMSMapViewDelegate, UICollectionView
             }
         }
         
+
         self.fldText.text = Ads?[cmpId].message
         self.lblTitle.text = Ads?[cmpId].headline!.uppercased()
         
-        Alamofire.request((Ads?[cmpId].logo)!).responseImage { response in
-            if let image = response.result.value {
+        AF.request((Ads?[cmpId].logo)!).responseImage { response in
+            
+            switch response.result {
+               case .success(let image):
                 let imageView = UIImageView(image: image)
                 imageView.frame = CGRect(x: self.view.frame.width*0.375, y:self.view.frame.height*0.63, width: self.view.frame.width*0.25, height: self.view.frame.width*0.25*0.64)
                 imageView.layer.masksToBounds = true
@@ -64,6 +67,9 @@ class Map_ViewController: UIViewController, GMSMapViewDelegate, UICollectionView
                 imageView.clipsToBounds = true
                 imageView.tag = 102
                 self.view.addSubview(imageView)
+               
+                case .failure(let error):
+                    print("Error loading image: \(error)")
             }
         }
         
@@ -91,6 +97,10 @@ class Map_ViewController: UIViewController, GMSMapViewDelegate, UICollectionView
         let image4 = UIImage(systemName: "arrowshape.turn.up.backward.2.fill", withConfiguration: largeConfig4)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
         btnBack.setImage(image4, for: .normal)
         btnBack.imageView?.contentMode = .scaleAspectFit
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            c_api.patchrequest(company: String(self.Ads![cmpId].id), key: "stat", action: "14") {}
+        }
     }
     
     @IBAction func btnHome(_ sender: Any) {

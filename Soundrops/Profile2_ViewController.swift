@@ -15,10 +15,17 @@ class Profile2_ViewController: UIViewController {
     @IBAction func btnBack(_ sender: Any) {
         self.performSegue(withIdentifier: "profile2_to_profile1", sender: self)
     }
+    @IBOutlet weak var lblAbout: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let screenHeight = UIScreen.main.bounds.size.height
+        let desiredHeight = screenHeight * 0.6
+        lblAbout.frame.size.height = CGFloat(desiredHeight)
+        
+        
+
         let myColour2 = UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
         btnBack.frame.size.width=btnBack.frame.height
         btnBack.backgroundColor = .white

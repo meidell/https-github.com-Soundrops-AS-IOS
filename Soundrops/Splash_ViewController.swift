@@ -13,72 +13,80 @@ class Splash_ViewController: UIViewController {
     let pushNotifications = PushNotifications.shared
     @IBOutlet weak var img_logo: UIImageView!
     @IBOutlet weak var img_sponsor: UIImageView!
+    @IBOutlet weak var imgSupport: UIImageView!
     @IBOutlet weak var lbl_user_thanks: UILabel!
     
-    override func viewDidLoad()  {
-        
+    override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+    }
+    
+    override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.isNavigationBarHidden = true
-     
-        if !isConnectedtoWifi {
-            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-            }))
-            self.present(alert, animated: true, completion: nil)
-        }
         
-        
-        if myuser.userprofile == 1 {
-            self.lbl_user_thanks.text="Velkommen "+myuser.username.uppercased()
-            let params = "/"+userChannel+"/"+String(myuser.userlat)+"/"+String(myuser.userlon)
-            c_api.getrequest(params: params, key: "getuser") {
-                if let wsyc = wsyc {
-                    Alamofire.request(wsyc.logostream).responseImage { response in
-                        let image = response.result.value
-                        self.img_sponsor.image = image
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(3)) {
-                        self.performSegue(withIdentifier: "splash_to_dashboard", sender: self)
-                    }
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        myuser.userprofile = 0
-                        self.performSegue(withIdentifier: "Splash_to_Start_1", sender: self)
-                    }
-                }
-            }
+        img_logo.isHidden=false
+        if userChannel == "" {
+           self.performSegue(withIdentifier: "Splash_Startbefore2", sender: self)
+
         } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.performSegue(withIdentifier: "Splash_to_Start_1", sender: self)
+            let userchannel = userChannel
+            if isConnectedtoWifi {
+                c_wifi.checkandGetLocation()
             }
-        }
-        c_api.getrequest(params: "", key: "getperk") {
-        }
-        c_api.getrequest(params: "", key: "getmainimages") {
-        }
-        c_api.getrequest(params: "", key: "getorganisations") {
-        }
-    }
-    
-    func popupUpdateDialogue(){
-        
-        let alertMessage = "A new version of the Soundrops Application is available,Please update to version "+d_me["new_version"]!
-        let alert = UIAlertController(title: "New Version Available", message: alertMessage, preferredStyle: UIAlertController.Style.alert)
-        let okBtn = UIAlertAction(title: "Update", style: .default, handler: {(_ action: UIAlertAction) -> Void in
-            if let url = URL(string: "itms-apps://itunes.apple.com/us/app/magento2-mobikul-mobile-app/id1166583793"),
-               UIApplication.shared.canOpenURL(url){
-                if #available(iOS 10.0, *) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                } else {
-                    UIApplication.shared.openURL(url)
+            let params = "/"+userchannel+"/"+String(myuser.userlat)+"/"+String(myuser.userlon)
+            c_api.getrequest(params: "", key: "gettopten") {
+                c_api.getrequest(params: "", key: "getperk") {
+                    c_api.getrequest(params: "", key: "getcompetition") {
+                        c_api.getrequest(params: params, key: "getuser") {
+                            DispatchQueue.main.async {
+                                if userBadRequest {
+                                    self.performSegue(withIdentifier: "Splash_Startbefore2", sender: self)
+                                } else {
+                                    if myuser.userprofile == 0 {
+                                        self.performSegue(withIdentifier: "splash_to_register1", sender: self)
+                                    } else {
+                                        if let wsyc = wsyc {
+                                            AF.request(wsyc.logostream).responseImage { response in
+                                                switch response.result {
+                                                case .success(let image):
+                                                    self.img_sponsor.image = image
+                                                case .failure(let error):
+                                                    print("Error loading image: \(error)")
+                                                }
+                                                self.wsync()
+                                            }
+                                        }
+                                    }
+                                }
+                               
+                            }
+                        }
+                    }
                 }
             }
-        })
-        let noBtn = UIAlertAction(title:"Skip" , style: .destructive, handler: {(_ action: UIAlertAction) -> Void in
-        })
-        alert.addAction(okBtn)
-        alert.addAction(noBtn)
-        //   self.present(alert, animated: true, completion: nil)
+        }
     }
     
+    func wsync() {
+        self.img_logo.isHidden=false
+        self.lbl_user_thanks.text="Takk "+myuser.username+" for at du støtter din organisasjon."
+        self.imgSupport.isHidden=false
+        c_api.patchrequest(company: String(0), key: "stat", action: "17") {
+        }
+      //  self.lbl_user_thanks.text = touched + " " + test + " " + String(cmpId) + " seque_splash_to_detail " + startedWithNotification
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            if startedWithNotification == "yes" && cmpId > 0 {
+              //  cmptype = "notification"
+                self.performSegue(withIdentifier: "seque_splash_to_detail", sender: self)
+            } else {
+                self.sven()
+            }
+        }
+    }
+    
+    func sven() {
+        if startedWithNotification == "no" {
+            self.performSegue(withIdentifier: "splash_to_dashboard", sender: self)
+        }
+    }
 }

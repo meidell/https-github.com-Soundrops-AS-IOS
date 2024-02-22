@@ -13,15 +13,17 @@ import Network
 var noNet: Bool = false
 
 class c_wifi: NSObject, CLLocationManagerDelegate {
-
-    static func getLocation() {
+    
+    static func checkandGetLocation() {
         
         let locManager = CLLocationManager()
         var currentLocation: CLLocation!
-        var postcode = 0
         
-        locManager.requestWhenInUseAuthorization()
-        
+        if myuser.userlat == 0 {
+            myuser.userlon = 58.97097
+            myuser.userlat =  5.73107
+        }
+       
         if (locManager.authorizationStatus == CLAuthorizationStatus.authorizedWhenInUse ||
             locManager.authorizationStatus == CLAuthorizationStatus.authorizedAlways){
            currentLocation = locManager.location
@@ -29,23 +31,20 @@ class c_wifi: NSObject, CLLocationManagerDelegate {
                 myuser.userlon = currentLocation.coordinate.longitude
                 myuser.userlat = currentLocation.coordinate.latitude
             }
-       }
+        }
     }
 
-    static func isWiFiConnected() -> Bool {
+    static func isWiFiConnected() {
 
         let monitor = NWPathMonitor()
-        var isConnected = false
         let semaphore = DispatchSemaphore(value: 0)
         monitor.pathUpdateHandler = { path in
-            isConnected = path.status == .satisfied
+            isConnectedtoWifi = path.status == .satisfied
             semaphore.signal()
         }
         let queue = DispatchQueue(label: "InternetConnectionMonitor")
         monitor.start(queue: queue)
         semaphore.wait()
         monitor.cancel()
-
-        return isConnected
     }
 }

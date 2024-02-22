@@ -4,8 +4,8 @@ import AlamofireImage
 
 
 class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    
-    @IBOutlet weak var img_heart: UIImageView!
+    @IBOutlet weak var lbl_favoritter_kommer_her: UILabel!
+    @IBOutlet weak var lblPageTitle: UILabel!
     @IBOutlet weak var cellCampaign: UITableView!
     @IBOutlet weak var tableView: UITableView!
    // @IBOutlet weak var btnFavourites: UIButton!
@@ -20,7 +20,6 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     var mycalc: Int = 0
     var Ads: [ads]?
     var myWsyc : Bool = false
-    
 
     var colourBackground: UIColor = UIColor( red: 180/255, green: 205/255, blue:85/255, alpha: 1.0 )
     let documentsDirectory = FileManager.SearchPathDirectory.documentDirectory
@@ -30,11 +29,64 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        isConnectedtoWifi = c_wifi.isWiFiConnected()
+        lastView = "Campaign"
         
+       c_wifi.isWiFiConnected()
+        
+        if cmptype == "myads" { lblPageTitle.text = "Annonser"}
+        if cmptype == "nearby" { lblPageTitle.text = "Nær meg"}
+        if cmptype == "category" { lblPageTitle.text = "Kategorier"}
+        if cmptype == "follow" {lblPageTitle.text = "Favoritter"}
+       
         if cmptype == "myads" && (myAds?.count ?? 0) > 0 {
             Ads = filterUniqueAds(myAds)
-            //adding communities to ads
+            addSponsorCommunity()
+        }
+        if cmptype == "nearby" && (nearbyAds?.count ?? 0) > 0 {
+            Ads = filterUniqueAds(nearbyAds)
+            addSponsorCommunity()
+        }
+        if cmptype == "category" && (myAds?.count ?? 0) > 0 {
+            if let ads = filterUniqueAds(myAds) {
+                Ads = ads.filter { $0.adcategory == userCategory }
+            }
+            if let ads = filterUniqueAds(nearbyAds) {
+                let filteredAds = ads.filter { $0.adcategory == userCategory }
+                Ads = Ads ?? [] + filteredAds
+            }
+        }
+        if cmptype == "follow" && (myAds?.count ?? 0) > 0 {
+            if let ads = filterUniqueAds(myAds) {
+                Ads = ads.filter { $0.following == 1 }
+            }
+            if let ads = filterUniqueAds(nearbyAds) {
+                let filteredAds = ads.filter { $0.following == 1 }
+                Ads = Ads ?? [] + filteredAds
+            }
+            if (Ads?.count ?? 0) < 1 {
+                lbl_favoritter_kommer_her.isHidden = false
+            }
+        }
+        fillcss()
+        tableView.dataSource = self
+        tableView.delegate = self
+    }
+    
+    func filterUniqueAds(_ inputAds: [ads]?) -> [ads]? {
+        guard let inputAds = inputAds else { return nil }
+        
+        var uniqueIDs = Set<Int>()
+        
+        return inputAds.filter { ad in
+            let isNew = uniqueIDs.insert(ad.id).inserted
+            return isNew
+        }
+    }
+    
+    func addSponsorCommunity() {
+        
+        //adding communities to ads
+        if (Ads?.count ?? 0) > 1 {
             for (index, community) in communities!.enumerated() {
                 let communityAd = ads(
                     id: community.id,
@@ -54,64 +106,33 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
                 )
                 // Insert the new ad at every third position
                 let insertionIndex = index * 3 + 2
-                Ads?.insert(communityAd, at: insertionIndex)
-            }
-            // Create an ads element using the properties from wsyc
-            let newAd = ads(
-                id: 0,
-                headline: wsyc?.slogan,
-                message: "",
-                calltoaction: 0,
-                calltoactionresource: "",
-                outlets: nil,
-                logo: wsyc?.logostream,
-                companyname: wsyc?.companyname,
-                companyid: 0,
-                image: "",
-                exclusive: 0,
-                adcategory: 0,
-                video: nil,
-                following: 0
-            )
-            Ads?.insert(newAd, at: 1)
-            myWsyc = true
-        }
-
-        if cmptype == "nearby" {
-            Ads = filterUniqueAds(nearbyAds)
-        }
-        if cmptype == "category" {
-            if let ads = filterUniqueAds(myAds) {
-                Ads = ads.filter { $0.adcategory == userCategory }
-            }
-            if let ads = filterUniqueAds(nearbyAds) {
-                let filteredAds = ads.filter { $0.adcategory == userCategory }
-                Ads = Ads ?? [] + filteredAds
+                if insertionIndex > Ads!.count {
+                   // Ads?.insert(communityAd, at: Ads!.count)
+                } else {
+                    Ads?.insert(communityAd, at: insertionIndex)
+                }
             }
         }
-        if cmptype == "follow" {
-            if let ads = filterUniqueAds(myAds) {
-                Ads = ads.filter { $0.following == 1 }
-            }
-            if let ads = filterUniqueAds(nearbyAds) {
-                let filteredAds = ads.filter { $0.following == 1 }
-                Ads = Ads ?? [] + filteredAds
-            }
-        }
-        fillcss()
-        tableView.dataSource = self
-        tableView.delegate = self
-    }
-    
-    func filterUniqueAds(_ inputAds: [ads]?) -> [ads]? {
-        guard let inputAds = inputAds else { return nil }
+        // Create an ads element using the properties from wsyc
+        let newAd = ads(
+            id: 0,
+            headline: wsyc?.slogan,
+            message: "",
+            calltoaction: 0,
+            calltoactionresource: "",
+            outlets: nil,
+            logo: wsyc?.logostream,
+            companyname: wsyc?.companyname,
+            companyid: 0,
+            image: "",
+            exclusive: 0,
+            adcategory: 0,
+            video: nil,
+            following: 0
+        )
+        Ads?.insert(newAd, at: 1)
+        myWsyc = true
         
-        var uniqueIDs = Set<Int>()
-        
-        return inputAds.filter { ad in
-            let isNew = uniqueIDs.insert(ad.id).inserted
-            return isNew
-        }
     }
     
     func fillcss() {
@@ -128,22 +149,6 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         btnHome.setImage(image1, for: .normal)
         btnHome.imageView?.contentMode = .scaleAspectFit
         
-//        btnFavourites.frame.size.width=btnFavourites.frame.height
-//        btnFavourites.backgroundColor = .white
-//        btnFavourites.layer.cornerRadius = btnFavourites.frame.width / 2
-//        btnFavourites.layer.borderWidth = 1
-//        btnFavourites.layer.borderColor = myColour2.cgColor
-//        btnFavourites.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
-//        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-//        if didScroll == false {
-//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-//            btnFavourites.setImage(image2, for: .normal)
-//            btnFavourites.imageView?.contentMode = .scaleAspectFit
-//        } else {
-//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.red, renderingMode: .alwaysOriginal)
-//            btnFavourites.setImage(image2, for: .normal)
-//            btnFavourites.imageView?.contentMode = .scaleAspectFit
-//        }
         didScroll=false
 
         btnCategory.frame.size.width=btnCategory.frame.height
@@ -161,15 +166,6 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         self.tableView.showsVerticalScrollIndicator = false
         view.backgroundColor = UIColor(red: 243/255, green: 243/255, blue: 243/255, alpha: 1)
         self.tableView.backgroundColor = UIColor(red: 243/255, green: 243/255, blue: 243/255, alpha: 1)
-
-//        switch cmptype {
-//        case "follow":
-//            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal)
-//            btnFavourites.setImage(image2, for: .normal)
-//        default:
-//            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-//            btnFavourites.setImage(image2, for: .normal)
-//        }
     }
     
     @IBAction func btnHome(_ sender: Any) {
@@ -179,13 +175,8 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     @IBAction func btnFavourites(_ sender: Any) {
         
         switch cmptype {
-      //  case "follow":
-//            let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-//            btnFavourites.setImage(image2, for: .normal)
-//            cmptype = "myads"
+
         default:
-        //    let image2 = UIImage(systemName: "heart.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal)
-        //    btnFavourites.setImage(image2, for: .normal)
             cmptype = "follow"
         }
         if cmptype == "myads" {
@@ -209,9 +200,7 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         tableView.reloadData()
        
     }
-    
-    //  override func viewDidAppear(_ animated: Bool) {self.navigationController?.isNavigationBarHidden = true}
-    
+        
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
        
         let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview)
@@ -236,8 +225,9 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-       if  Ads![indexPath.row].companyname == "Community" {
-            return 340
+        if  Ads![indexPath.row].companyname == "Community" {
+            return 360
+
         } else {
             if myWsyc && indexPath.row == 1 {
                 return 300
@@ -258,15 +248,11 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
+        c_api.patchrequest(company: String((Ads?[indexPath.row].id)!), key: "stat", action: "19") {
+        }
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! Campaign_Detail_Cell
         cell.selectionStyle = UITableViewCell.SelectionStyle.none
-        
-        cell.lbl_title.text = (Ads?[indexPath.row].headline)!
-        cell.lbl_title.isHidden=false
-        cell.lbl_title.numberOfLines = 3
-        cell.lbl_title.lineBreakMode = .byWordWrapping
-        cell.lbl_title.frame = CGRect(x: 150, y: 30, width: 130, height: 80)
-        
         if myHeight == 0 { myHeight = cell.img_campaign.frame.height}
         cell.img_campaign.backgroundColor = UIColor.white
         cell.img_campaign.alpha = 1
@@ -276,18 +262,33 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         cell.img_campaign.frame = CGRect(x: 1, y: 30, width: myHeight/0.68, height: myHeight+6)
         cell.img_campaign.layer.maskedCorners = [ .layerMinXMaxYCorner]
         let getImage = Ads?[indexPath.row].logo
-        Alamofire.request(getImage!).responseImage { [self] response in
-            let image = response.result.value
-            self.imageCache.setObject(image!, forKey: Ads?[indexPath.row].image as AnyObject)
-            cell.img_campaign.image = image
+        AF.request(getImage!).responseImage { [self] response in
+                switch response.result {
+                case .success(let image):
+                    self.imageCache.setObject(image, forKey: Ads?[indexPath.row].image as AnyObject)
+                        cell.img_campaign.image = image
+                case .failure(let error):
+                    print("Error loading image: \(error)")
+                }
         }
+        
+        cell.lbl_title.font = UIFont.systemFont(ofSize: 15.0, weight: .medium)
+        cell.lbl_title.text = (Ads?[indexPath.row].headline)!
+        cell.lbl_title.isHidden=false
+        cell.lbl_title.numberOfLines = 4
+        cell.lbl_text.textAlignment = .left
+        cell.lbl_title.textAlignment = .left
+        cell.lbl_title.lineBreakMode = .byWordWrapping
+        cell.lbl_title.frame = CGRect(x: 140, y: 30, width: cell.frame.width*0.45, height: cell.img_campaign.frame.height)
+        cell.lbl_title.alpha = 1
+
         
         let distanceInMeters = 1000*2
         cell.lbl_kilometer.text = String(format: "%.00f m", distanceInMeters)
         cell.lbl_kilometer.frame.origin.x =   CGFloat(cell.frame.size.width*0.37)
+        
         let myColour2 = UIColor(red: 210/255, green: 210/255, blue: 210/255, alpha: 1)
         let myColour3 = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 1)
-        
         cell.img_back.layer.cornerRadius = 10.0
         cell.img_back.layer.borderColor = myColour2.cgColor
         cell.img_back.layer.borderWidth = 1
@@ -298,31 +299,52 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         
         cell.lblCompany.text=Ads?[indexPath.row].companyname!.uppercased()
         cell.lblCompany.frame = CGRect(x: 10, y: 13, width: 300, height: 10)
+        cell.img_back.frame.size.height=cell.frame.size.height*0.90
         
         if  Ads?[indexPath.row].companyname == "Community" {
+            cell.lblCompany.text = "share50"
             let width:CGFloat = cell.frame.size.width-4
-            let height:CGFloat = cell.frame.size.width*0.64
+           // let height:CGFloat = cell.frame.size.width*0.64
+            let height:CGFloat = cell.frame.size.height*0.60
             cell.img_campaign.frame = CGRect(x: 1, y: 30, width: 1.03*width, height: height)
             cell.img_campaign.layer.cornerRadius = 0
-            cell.img_back.frame.size.height=330
-            cell.lbl_title.frame = CGRect(x: 30, y: 200, width: 130, height: 80)
+            cell.img_back.frame.size.height=cell.frame.size.height*0.96
+            cell.lbl_title.textAlignment = .center
+            cell.lbl_title.frame = CGRect(x: cell.img_campaign.frame.width*0.5-100, y: cell.img_campaign.frame.height + 30, width: 200, height: 40)
+            
+            if let message = Ads?[indexPath.row].message {
+                cell.lbl_text.text = message
+                cell.lbl_text.isHidden=false
+                cell.lbl_text.numberOfLines = 4
+                cell.lbl_text.lineBreakMode = .byWordWrapping
+                cell.lbl_text.textAlignment = .center
+                cell.lbl_text.frame = CGRect(x: cell.img_campaign.frame.width*0.05, y: cell.img_campaign.frame.height + 50, width: cell.img_campaign.frame.width*0.9, height: height*0.4)
+            }
         }
+        
+        if let subviewToRemove = cell.contentView.viewWithTag(100) {
+           subviewToRemove.removeFromSuperview()
+         }
+       
         if indexPath.row == 1 && myWsyc {
             
             let width:CGFloat = cell.frame.size.width-4
             let height:CGFloat = cell.frame.size.width*0.64
             cell.img_campaign.frame = CGRect(x: 0.2*width, y: 30, width: 0.6*width, height: 0.7*height)
             cell.img_campaign.layer.cornerRadius = 0
-            cell.img_back.frame.size.height=285
-            cell.lbl_title.frame = CGRect(x: 0.1*width, y: 190, width: 0.8*width, height: 80)
+            cell.img_back.frame.size.height=200
+            cell.img_back.frame.size.height=cell.frame.size.height*0.96
+            cell.lbl_title.frame = CGRect(x: 0.1*width, y: 210, width: 0.8*width, height: 80)
             cell.lbl_title.textAlignment = .center
-            cell.lbl_title.text = "Thank you for supporting your organisation!"
+            cell.lbl_title.text = "Takk for at du støtter din organisasjon!"
             cell.lbl_title.font = UIFont.systemFont(ofSize: 12.0, weight: .regular)
+            cell.lbl_text.text = ""
 
             cell.lblCompany.text=""
             
             let subview = UIView(frame: CGRect(x: 0, y: 0, width: cell.bounds.width, height: 50))
-            let imageView = UIImageView(frame: CGRect(x: 0.2*width, y: 180, width: 0.6*width, height: 40))
+            subview.tag = 100
+            let imageView = UIImageView(frame: CGRect(x: 0.2*width, y: 200, width: 0.6*width, height: 40))
             imageView.image = UIImage(named: "wesupport")
             imageView.contentMode = .scaleAspectFit
             subview.addSubview(imageView)
@@ -332,6 +354,7 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
         }
 
         if let message = Ads?[indexPath.row].headline, message == "Coming soon" {
+            cell.lbl_title.font = UIFont.systemFont(ofSize: 15.0, weight: .medium)
             cell.img_campaign.alpha = 0.5
             cell.lbl_title.alpha = 0.5
             cell.lblCompany.alpha = 0.5
@@ -345,14 +368,20 @@ class Campaign_ViewController: UIViewController, UITableViewDataSource, UITableV
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if  Ads?[indexPath.row].companyname! == "Community" || Ads?[indexPath.row].headline! == wsyc?.slogan || (Ads?[indexPath.row].headline)! == "Coming soon" {
         } else {
+            cmpId = indexPath.row
             if cmptype == "myads" {
                 if let adsArray = myAds,
                    let selectedHeadline = Ads?[indexPath.row].headline,
                    let thisId = adsArray.enumerated().first(where: { $0.element.headline == selectedHeadline })?.offset {
                     cmpId = thisId
                 }
-            } else {
-                cmpId = indexPath.row
+            }
+            if cmptype == "nearby" {
+                if let adsArray = nearbyAds,
+                   let selectedHeadline = Ads?[indexPath.row].headline,
+                   let thisId = adsArray.enumerated().first(where: { $0.element.headline == selectedHeadline })?.offset {
+                    cmpId = thisId
+                }
             }
             c_api.patchrequest(company: String(Ads![indexPath.row].id), key: "stat", action: "8") {}
             performSegue(withIdentifier: "showDetail", sender: self)

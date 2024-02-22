@@ -13,7 +13,7 @@ class Learning_2_ViewController: UIViewController {
      @IBOutlet weak var btnContinue: UIButton!
        
        @IBAction func btn_continue(_ sender: Any) {
-             self.performSegue(withIdentifier: "learn_2_to_start1", sender: self)
+             self.performSegue(withIdentifier: "learning2_to_register1", sender: self)
        }
 
        override func viewDidLoad() {

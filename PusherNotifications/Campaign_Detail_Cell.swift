@@ -1,7 +1,7 @@
 import UIKit
 
 class Campaign_Detail_Cell: UITableViewCell {
-
+    
     @IBOutlet weak var lblCompany: UILabel!
     
     @IBOutlet weak var img_update: UIImageView!
@@ -16,5 +16,5 @@ class Campaign_Detail_Cell: UITableViewCell {
     @IBOutlet weak var img_back: UIImageView!
     
     @IBOutlet weak var img_topborder: UIImageView!
+    
 }
-

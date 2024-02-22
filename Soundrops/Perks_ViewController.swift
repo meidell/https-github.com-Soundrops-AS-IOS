@@ -26,6 +26,7 @@ class Perks_ViewController: UIViewController, UITableViewDataSource, UITableView
                 
         table.dataSource = self
         table.delegate = self
+        table.separatorColor = .clear
         
         self.table.showsHorizontalScrollIndicator = false
         self.table.showsVerticalScrollIndicator = false
@@ -42,8 +43,7 @@ class Perks_ViewController: UIViewController, UITableViewDataSource, UITableView
         let largeConfig1 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
         let image1 = UIImage(systemName: "house.fill", withConfiguration: largeConfig1)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
         btnHome.setImage(image1, for: .normal)
-        btnHome.imageView?.contentMode = .scaleAspectFit
-        
+        btnHome.imageView?.contentMode = .scaleAspectFit        
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -66,7 +66,7 @@ class Perks_ViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        g_curr = indexPath.row
+        perkId = indexPath.row
         c_api.patchrequest(company: String(perks![indexPath.row].perkid), key: "stat", action: "15") {}
 
         performSegue(withIdentifier: "perks_to_perksdetail", sender: self)
@@ -83,19 +83,34 @@ class Perks_ViewController: UIViewController, UITableViewDataSource, UITableView
         cell.background.layer.cornerRadius = 8
         cell.background.layer.masksToBounds = true
 
-        Alamofire.request(perks![indexPath.row].perkimg!).responseImage { response in
-            cell.mainImageView.image = response.result.value
+        AF.request(perks![indexPath.row].perkimg!).responseImage { response in
+            switch response.result {
+            case .success(let image):
+                cell.mainImageView.image = image
+            case .failure(let error):
+                print("Error loading image: \(error)")
+            }
             cell.mainImageView.layer.cornerRadius = 8
             cell.mainImageView.layer.masksToBounds = true
             cell.mainImageView.layer.maskedCorners = [ .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-            
+            cell.mainImageView.frame.size.width = cell.contentView.frame.size.width
+            cell.mainImageView.frame.origin.x = 0
+
+
         }
         
-        Alamofire.request(perks![indexPath.row].perklogo!).responseImage { response in
-            cell.iconImageView.image = response.result.value
+        AF.request(perks![indexPath.row].perklogo!).responseImage { response in
+            switch response.result {
+            case .success(let image):
+                cell.iconImageView.image = image
+            case .failure(let error):
+                print("Error loading image: \(error)")
+            }
             cell.iconImageView.layer.cornerRadius = 8
             cell.iconImageView.frame.size.height=cell.iconImageView.frame.width*0.52
             cell.iconImageView.layer.masksToBounds = true
+            cell.iconImageView.frame = CGRect(x: cell.mainImageView.frame.width*0.86, y:cell.mainImageView.frame.height*0.98, width: cell.mainImageView.frame.width*0.13, height: cell.mainImageView.frame.width*0.13*0.64)
+            cell.iconImageView.clipsToBounds = true
         }
        
         cell.title.text = perks![indexPath.row].perkname!.uppercased()
@@ -105,7 +120,7 @@ class Perks_ViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        500
+        450
     }
 
 }

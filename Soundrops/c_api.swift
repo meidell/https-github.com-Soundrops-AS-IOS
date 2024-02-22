@@ -14,25 +14,36 @@ import UIKit
 import CoreData
 import KeychainSwift
 
-// campaign details
-var notificationCampaign:  Int = 0
-var d_cmp = [String: String]()
-var d_lst = [String: String]()
-var d_me = [String: String]()
-var myCategory = [String: Int]()
-var saidLater: Bool = false
-var isConnectedtoWifi: Bool = false
+struct CompetitionData: Codable {
+    let readablefrom: String
+    let readableto: String
+    let name: String
+    let fromdata: Int
+    let endDate: Int
+    let rules: String
+}
 
-// modes
-var g_mod: String = "adds"
-var g_omd: String = ""
-var g_curr: Int = 0
-var Notification_granted: Bool = false
-var newUser: Bool = false
-var received_first_notification: Bool = false
-var g_NumCategories: Int = 0
-var campID: Int = 0
+var currentCompetitionData: CompetitionData?
 
+struct CompOrganisation: Codable {
+    let name: String
+    let logo: String
+}
+
+struct CompetitionLeaderboard: Codable {
+    let _id: String
+    let userCount: Int
+    let organisation: CompOrganisation
+}
+
+
+struct CompetitionResponse: Codable {
+    let competitionon: Int
+    let competitiondata: CompetitionData
+    let competitionleaderboard: [CompetitionLeaderboard]
+}
+
+var CompTens: [CompetitionLeaderboard]?
 
 struct adcategory: Codable {
     let originalid: Int
@@ -59,6 +70,7 @@ struct perk: Codable {
     let perkdisclaimer: String?
     let perkimg: String?
     let perklogo: String?
+    let perkbtnname: String?
 }
 var perks: [perk]?
 
@@ -94,16 +106,15 @@ struct user: Codable {
     var usergender: Int = 0
     var userage: Int = 0
     var useraccept: Int?
-    var userlon: Double = 5.555
-    var userlat: Double = 58.888
+    var userlon: Double = 0
+    var userlat: Double = 0
     var userprofile: Int = 0
     var userhometown: String = ""
     var userpostcode: String = ""
     var userpicture: String?
+    var usernotifications: Int = 0
 }
 var myuser = user()
-var userpostlon: Double = 5.555
-var userpostlat: Double = 58.888
 
 struct org: Codable {
     var orgname: String = ""
@@ -150,6 +161,17 @@ struct postcode: Codable {
     let lon: Double
 }
 
+struct TopTen: Codable {
+    let _id: String?
+    let originalid: Int?
+    let name: String?
+    let logo: String?
+    let followers: Int?
+    let earnings: Int?
+
+}
+var TopTens: [TopTen]?
+
 struct Organisation: Codable {
     let orgname: String?
     let orglogo: String?
@@ -159,50 +181,126 @@ struct Organisation: Codable {
 }
 var Organisations: [Organisation]?
 
+struct Company: Codable {
+    let name: String?
+    let logo: String?
+}
+var Companies: [Company]?
+
 var sortedCategoryList: [(key: String, value: Int)] = []
 
-//user data
-var userCountry = ""
-var userPicture = ""
+//global variables
+
+var myCategory = [String: Int]()
+var lastView: String = ""
+var isConnectedtoWifi: Bool = false
+var isConnectedtoNotifications: Bool = false
+var showWarning: Bool = true
 var userToken = ""
-var userChannel = ""
-var userAudio = true
-var userNotification = ""
-var userDataSet = false
-var userAccept = false
 var cmpId = 0
-var cmpHeadline = ""
 var cmptype = ""
 var perkId = 0
 var mainImageCounter = 0
 var userCategory = 0
+var userChannel = ""
+var currentOrg = 0
+var badgeCount = 0
+var competitionOn = 0
+var NotificationReceived: String = "no"
+var startedWithNotification: String = "no"
+var userBadRequest: Bool = false
+var QRadmin: Bool = false
+
 
 class c_api {
+    
+    
+    class func sendPatchRequest() {
+        // Prepare the URL
+        guard let url = URL(string: "https://statservice1.share50.no/stats/track") else { return }
+        
+        // Prepare the request
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        
+        // Set the headers
+        request.setValue("androidios", forHTTPHeaderField: "authorization")
+        request.setValue("greatballsoffire", forHTTPHeaderField: "password")
+        request.setValue("zYMTDDa6rI1727427536287", forHTTPHeaderField: "channel")
+        request.setValue("zYMTDDa6rI1727427536287", forHTTPHeaderField: "channelid")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Prepare the body
+        let json: [String: Any] = [
+            "lat": "0",
+            "lng": "0",
+            "channelid": "zYMTDDa6rI1727427536287",
+            "cmpid": "570",
+            "action": "10"
+        ]
+        
+        // Convert the JSON dictionary to Data
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
+            request.httpBody = jsonData
+        } catch {
+            print("Error converting dictionary to JSON data: \(error)")
+            return
+        }
+        
+        // Create the URLSession data task
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error: \(error)")
+                return
+            }
+            
+            if let response = response as? HTTPURLResponse {
+                print("Response status code: \(response.statusCode)")
+            }
+            
+            if let data = data {
+                if let jsonResponse = try? JSONSerialization.jsonObject(with: data, options: []) {
+                    print("Response JSON: \(jsonResponse)")
+                } else {
+                    print("Unable to parse response data")
+                }
+            }
+        }
+        
+        // Start the request
+        task.resume()
+    }
+
     
     class func geturls(key: String) -> String? {
         
         var urls = [String: String]()
-        urls["getpostcode"] = "https://appservice.share50.no/postcode"
-        urls["getuser"] = "https://appservice.share50.no/user"
-        urls["getperk"] = "https://appservice.share50.no/perks/all"
-        urls["getmainimages"] = "https://appservice.share50.no/mainimages"
-        urls["updateuser"] = "https://appservice.share50.no/updateuser"
-        urls["setappleuser"] = "https://appservice.share50.no/setappleuser"
-        urls["getorganisations"] = "https://appservice.share50.no/organisations"
-        urls["getadcategories"]  = "https://appservice.share50.no/adcategory/get"
-        urls["following"]  = "https://appservice.share50.no/following"
-        urls["stat"]  = "https://statservice.share50.no/stats/track"
-        urls["discontinue"]  = "https://appservice.share50.no/discontinueuser"
-        urls["pairphone"]  = "https://appservice.share50.no/pair/update"
-        urls["insertlead"]  = "https://appservice.share50.no/reqorg/insert"
-        
+        urls["getpostcode"] = "https://appservice1.share50.no/postcode"
+        urls["getuser"] = "https://appservice1.share50.no/user"
+        urls["gettopten"]  = "https://appservice1.share50.no/organisations/getoverhead"
+        urls["getcompetition"]  = "https://appservice1.share50.no/competitions"
+        urls["getperk"] = "https://appservice1.share50.no/perks/all"
+        urls["getmainimages"] = "https://appservice1.share50.no/mainimages"
+        urls["getcompanylogos"] = "https://appservice1.share50.no/companylogos"
+        urls["updateuser"] = "https://appservice1.share50.no/updateuser"
+        urls["setappleuser"] = "https://appservice1.share50.no/setappleuser"
+        urls["getorganisations"] = "https://appservice1.share50.no/organisations"
+        urls["getadcategories"]  = "https://appservice1.share50.no/adcategory/get"
+        urls["following"]  = "https://appservice1.share50.no/following"
+        urls["stat"]  = "https://statservice1.share50.no/stats/track"
+        urls["discontinue"]  = "https://appservice1.share50.no/discontinueuser"
+        urls["pairphone"]  = "https://appservice1.share50.no/pair/update"
+        urls["insertlead"]  = "https://appservice1.share50.no/reqorg/insert"
+        urls["notifications-on"]  = "https://appservice1.share50.no/notifications/on"
+        urls["notifications-off"]  = "https://appservice1.share50.no/notifications/off"
+
         return urls[key]
     }
     
     class func deleterequest(channel: String, completion: @escaping (Bool) -> Void) {
         
         let urlString = geturls(key: "discontinue")!
-        print("delete ",channel)
         
         if let encodedURLString = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
            let url = URL(string: encodedURLString) {
@@ -248,6 +346,7 @@ class c_api {
             request.setValue("androidios", forHTTPHeaderField: "authorization")
             request.setValue("greatballsoffire", forHTTPHeaderField: "password")
             request.setValue(userChannel, forHTTPHeaderField: "channel")
+            request.setValue(userChannel, forHTTPHeaderField: "channelid")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             
             var jsonData: [String: Any] = [:]
@@ -264,6 +363,7 @@ class c_api {
                 jsonData["channelid"] = userChannel
                 jsonData["cmpid"] = company
                 jsonData["action"] = action
+                
             }
             if let jsonData = try? JSONSerialization.data(withJSONObject: jsonData) {
                 request.httpBody = jsonData
@@ -277,7 +377,7 @@ class c_api {
 
                 if httpResponse!.statusCode == 200 {
                     if key == "following" {
-                        let jsonResponse = try? JSONSerialization.jsonObject(with: data!, options: [])
+                       // let jsonResponse = try? JSONSerialization.jsonObject(with: data!, options: [])
                     }
                 } else {
                     print("Non-200 status code received: \(httpResponse!.statusCode)")
@@ -303,21 +403,20 @@ class c_api {
             
             if key == "insertlead" {
                 jsonData["orgname"] = mylead.name
-                jsonData["channel"] = userChannel
+                jsonData["channel"] =  userChannel
                 jsonData["personname"] = mylead.comment
-                print(jsonData)
                 if let jsonData = try? JSONSerialization.data(withJSONObject: jsonData) {
                     request.httpBody = jsonData
                 }
             }
             
             if key == "setappleuser" {
-                
+
                 jsonData["id_token"] = userToken
                 jsonData["channel"] = userChannel
                 jsonData["notification"] = 1
                 jsonData["name"] = myuser.username
-                
+
                 if let jsonData = try? JSONSerialization.data(withJSONObject: jsonData) {
                     request.httpBody = jsonData
                 }
@@ -325,8 +424,8 @@ class c_api {
             
             if key == "updateuser" {
                 jsonData["userchannel"] = userChannel
-                jsonData["userlat"] = String(userpostlat)
-                jsonData["userlong"] = String(userpostlon)
+                jsonData["userlat"] = String(myuser.userlat)
+                jsonData["userlong"] = String(myuser.userlon)
                 jsonData["userage"] = String(myuser.userage)
                 jsonData["org"] = String(myuser.userorg)
                 jsonData["usergender"] = String(myuser.usergender)
@@ -334,8 +433,7 @@ class c_api {
                 jsonData["username"] = myuser.username
                 jsonData["userhometown"] = myuser.userhometown
                 jsonData["userpostcode"] = myuser.userpostcode
-                jsonData["notifications"] = "1"
-                print(jsonData)
+                jsonData["notifications"] = isConnectedtoNotifications
                 if let jsonData = try? JSONSerialization.data(withJSONObject: jsonData) {
                     request.httpBody = jsonData
                 }
@@ -348,17 +446,8 @@ class c_api {
                 }
                 let httpResponse = response as? HTTPURLResponse
                 if httpResponse!.statusCode == 200 {
-                    if key == "updateuser" {
-                        let jsonResponse = try? JSONSerialization.jsonObject(with: data!, options: [])
-                        if jsonResponse is [String: Any] {
-                            KeychainSwift().set("1", forKey: "profile")
-                            KeychainSwift().set(myuser.username, forKey: "name")
-                        }
-                    }
-                   
                 } else {
                     print("Non-200 status code received: \(httpResponse!.statusCode)")
-                    myuser.userprofile=0
                 }
                 completion()
             }
@@ -367,7 +456,6 @@ class c_api {
     }
     
     class func getrequest(params: String, key: String, completion: @escaping () -> Void) {
-        
         //endstring parameters
         let urlString = geturls(key: key)! + params
         if let encodedURLString = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
@@ -377,6 +465,7 @@ class c_api {
             request.setValue("androidios", forHTTPHeaderField: "authorization")
             request.setValue("greatballsoffire", forHTTPHeaderField: "password")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(userChannel, forHTTPHeaderField: "channel")
             let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
                 if let error = error {
                     print("Error: \(error.localizedDescription)")
@@ -385,57 +474,30 @@ class c_api {
                 let httpResponse = response as? HTTPURLResponse
                 if httpResponse!.statusCode == 200 {
                     guard let data = data else {
-                        //no data received
                         return
                     }
                     do {
                         if key == "getadcategories" {
-                            
-                            
                             let adcategories = try JSONDecoder().decode([adcategory].self, from: data)
                             var categoryList: [String: Int] = [:]
-
-                            // Create a set to track unique IDs for each category
                             var processedIDs: Set<Int> = Set()
 
                             if let myAds = myAds, let nearbyAds = nearbyAds {
                                 for category in adcategories {
                                     myCategory[category.name] = category.originalid
                                     
-                                    // Process myAds
                                     let myAdsCount = myAds.filter { $0.adcategory == category.originalid }.count
                                     categoryList[category.name] = (categoryList[category.name] ?? 0) + myAdsCount
-                                    // Add processed IDs to the set
                                     processedIDs.formUnion(myAds.map { $0.id })
 
-                                    // Process nearbyAds only if the ID has not been processed before
                                     let nearbyAdsCount = nearbyAds.filter { $0.adcategory == category.originalid && !processedIDs.contains($0.id) }.count
                                     categoryList[category.name] = (categoryList[category.name] ?? 0) + nearbyAdsCount
-                                    // Add processed IDs to the set
                                     processedIDs.formUnion(nearbyAds.map { $0.id })
                                 }
 
-                                // Sort and filter the categoryList
                                 sortedCategoryList = categoryList.sorted { $0.key < $1.key }
                                 sortedCategoryList = sortedCategoryList.filter { $0.value > 0 }
                             }
-
-                            
-                            
-//                            let adcategories = try JSONDecoder().decode([adcategory].self, from: data)
-//                            var categoryList: [String: Int] = [:]
-//                            if let myAds = myAds, let nearbyAds = nearbyAds {
-//                                for category in adcategories {
-//                                    myCategory[category.name] = category.originalid
-//                                    let myAdsCount = myAds.filter { $0.adcategory == category.originalid }.count
-//                                    categoryList[category.name] = (categoryList[category.name] ?? 0) + myAdsCount 
-//
-//                                    let nearbyAdsCount = nearbyAds.filter { $0.adcategory == category.originalid }.count
-//                                    categoryList[category.name] = (categoryList[category.name] ?? 0) + nearbyAdsCount
-//                                }
-//                                sortedCategoryList = categoryList.sorted { $0.key < $1.key }
-//                                sortedCategoryList = sortedCategoryList.filter { $0.value > 0 }
-//                            }
                         }
                         if key == "getmainimages" {
                             mainimages = try JSONDecoder().decode([mainimage].self, from: data)
@@ -451,24 +513,40 @@ class c_api {
                             wsyc = items.wsyc
                             myorg = items.org
                             communities = items.community
-                    
                         }
                         if key == "getorganisations" {
                             Organisations = try JSONDecoder().decode([Organisation].self, from: data)
                         }
+                        if key == "gettopten" {
+                            TopTens = try JSONDecoder().decode([TopTen].self, from: data)
+                        }
+                        if key == "getcompetition" {
+                            let competitionResponse = try JSONDecoder().decode(CompetitionResponse.self, from: data)
+                            CompTens = competitionResponse.competitionleaderboard
+                            currentCompetitionData = competitionResponse.competitiondata
+                            competitionOn = competitionResponse.competitionon
+                            print(competitionOn)
+                        }
+                        if key == "getcompanylogos" {
+                            Companies = try JSONDecoder().decode([Company].self, from: data)
+                        }
                         if key == "getpostcode" {
                             let this = try JSONDecoder().decode(postcode.self, from: data)
                             myuser.userhometown =  this.place
-                            userpostlat = this.lat
-                            userpostlon = this.lon
+                            myuser.userlat  = this.lat
+                            myuser.userlon  = this.lon
                         }
                     } catch {
                         print("Error parsing JSON: \(error.localizedDescription)")
+                        if key == "getcompetition" {
+                            competitionOn = 0
+                        }
                     }
                 } else {
+                    if key == "getuser" {
+                        userBadRequest = true
+                    }
                     print("Non-200 status code received: \(httpResponse!.statusCode)")
-                    print("ici")
-                    myuser.userprofile = 0
                 }
                 completion()
             }
@@ -477,9 +555,9 @@ class c_api {
     }
     
     class func setappleuser(name: String, notification: String, token: String, channel: String) -> String? {
-                
+        let beamsClient = PushNotifications.shared
         var responseString: String?
-        var request = URLRequest(url: URL(string: "https://appservice.share50.no/setappleuser")!)
+        var request = URLRequest(url: URL(string: "https://appservice1.share50.no/setappleuser")!)
         let json: [String: Any] = [
                "channel": channel,
                "notification": notification,
@@ -496,16 +574,22 @@ class c_api {
                 responseString = String(data: data, encoding: .utf8)
                 let json = try? JSONSerialization.jsonObject(with: data, options: [])
                 if let json = json as? [String: Any] {
+                    let profile_completed = json["profile_completed"] as! Int
                     let pushNotifications = PushNotifications.shared
                     let channelresponse = json["channel_overwrite"] as! String
                     if channelresponse == "added" {
-                        responseString = "new"
-                        try? pushNotifications.addDeviceInterest(interest: channel)
+                        myuser.userprofile = 0
                     } else {
-                        KeychainSwift().set("1", forKey: "profile")
-                        KeychainSwift().set(channelresponse, forKey: "channel")
-                        responseString = "old"
-                        try? pushNotifications.addDeviceInterest(interest: channelresponse)
+                        myuser.userprofile = profile_completed
+                        userChannel = channelresponse
+                    }
+                    KeychainSwift().set(userChannel, forKey: "channel")
+             //       try? pushNotifications.addDeviceInterest(interest: userChannel)
+                    beamsClient.start(instanceId: "01951d5b-82d4-4b3c-a9d1-dca0353072fd")
+                    beamsClient.registerForRemoteNotifications()
+                    do {
+                        try beamsClient.addDeviceInterest(interest: userChannel)
+                    } catch {
                     }
                 }
             }

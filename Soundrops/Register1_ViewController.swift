@@ -6,49 +6,86 @@ import CoreData
 
 class Register1_ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
     
-    @IBOutlet weak var btn_info: UIButton!
     @IBOutlet weak var img_search: UIImageView!
-    @IBOutlet weak var img_magnifying_glass: UIImageView!
     @IBOutlet weak var fld_search: UITextField!
     @IBOutlet weak var tableview: UITableView!
+  
+    
+    let imageCache = NSCache<AnyObject, AnyObject>()
     
     @IBAction func btnInfo(_ sender: Any) {
         self.performSegue(withIdentifier: "register1_to_feedback", sender: self)
     }
     
+    var myHeight: CGFloat = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-                      
-        fld_search.delegate = self
-        fld_search.addTarget(self, action: #selector(myTargetFunction), for: .touchDown)
-        fld_search.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
+        self.myHeight = self.tableview.frame.size.height
 
         let myColour2 = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
-        img_search.backgroundColor = UIColor.white
-        img_search.layer.borderWidth = 1
-        img_search.layer.borderColor = myColour2.cgColor
-        img_search.layer.cornerRadius = 5
-               
-        tableview.dataSource = self
-        tableview.delegate = self
+        self.img_search.backgroundColor = UIColor.white
+        self.img_search.layer.borderWidth = 1
+        self.img_search.layer.borderColor = myColour2.cgColor
+        self.img_search.layer.cornerRadius = 5
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        let dispatchGroup = DispatchGroup()
+
+        dispatchGroup.enter()
+        c_api.getrequest(params: "", key: "getorganisations") {
+            dispatchGroup.leave()
+        }
+        dispatchGroup.notify(queue: .main) {
+            self.fld_search.delegate = self
+            self.fld_search.addTarget(self, action: #selector(self.textFieldDidChange), for: .editingChanged)
+            self.tableview.dataSource = self
+            self.tableview.delegate = self
+            self.tableview.reloadData()
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        }
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            tableview.frame.size.height = tableview.frame.size.height - keyboardSize.height * 0.8
-                
-              }
-      
+            tableview.frame.size.height = myHeight - keyboardSize.height * 0.8
+        }
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
         let contentInsets = UIEdgeInsets.zero
-               tableview.contentInset = contentInsets
-               tableview.scrollIndicatorInsets = contentInsets
+            tableview.contentInset = contentInsets
+            tableview.scrollIndicatorInsets = contentInsets
+            tableview.frame.size.height = myHeight
     }
+    
+    func addnote() {
+        
+        // Create the white subview
+               let whiteSubview = UIView(frame: CGRect(x: 0, y: 200, width: UIScreen.main.bounds.width, height: 300))
+               whiteSubview.backgroundColor = .white
+               whiteSubview.tag = 123
+               self.view.addSubview(whiteSubview)
+               
+               // Add the title label
+               let titleLabel = UILabel(frame: CGRect(x: 0, y: 20, width: whiteSubview.frame.width, height: 40))
+               titleLabel.text = "OBS"
+               titleLabel.textColor = .black
+               titleLabel.textAlignment = .center
+               titleLabel.font = UIFont.boldSystemFont(ofSize: 24)
+               whiteSubview.addSubview(titleLabel)
+               
+               // Add the text label
+               let textLabel = UILabel(frame: CGRect(x: 20, y: 70, width: whiteSubview.frame.width - 40, height: 200))
+               textLabel.text = "Klubben din er ikke registrert ennå, men det var godt du oppdaget det! Vi jobber med å registrere alle klubber. Tips oss via appen og innstillinger/tannhjulet, så kontakter vi din klubb. Velg en annen klubb i mellomtiden og vi sørger for å få med klubben din i fremtiden!"
+               textLabel.textColor = .black
+               textLabel.textAlignment = .center
+               textLabel.numberOfLines = 0 // Allow multiple lines
+               whiteSubview.addSubview(textLabel)
+    }
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return Organisations?.count ?? 0
@@ -61,18 +98,30 @@ class Register1_ViewController: UIViewController, UITableViewDelegate, UITableVi
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell" , for: indexPath) as! Register1_TableViewCell
         cell.lbl_name.text = Organisations?[indexPath.row].orgname!.uppercased()
+        let getImage = Organisations?[indexPath.row].orglogo
+        
+        AF.request(getImage!).responseImage { [] response in
+            switch response.result {
+            case .success(let image):
+                cell.imgLogo.image = image
+            case .failure(let error):
+                print("Error loading image: \(error)")
+            }
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let myint =  indexPath.row
+        let num = 1 + (Organisations?[myint].orgfollowers ?? 0)
         myorg.orgname = Organisations?[myint].orgname ?? ""
         myuser.userorg = Organisations?[myint].orgid ?? 0
+        myorg.orglogo = Organisations?[myint].orglogo ?? ""
+        myorg.orgfollowers = num
+        myorg.orgrevenue = Organisations?[myint].orgrevenue ?? 0
+                
+        
         self.performSegue(withIdentifier: "register1_register2", sender: self)
-    }
-    
-    @objc func myTargetFunction() {
-        img_magnifying_glass.isHidden = true
     }
     
     @objc func textFieldDidChange(_ textField: UITextField) {
@@ -83,7 +132,13 @@ class Register1_ViewController: UIViewController, UITableViewDelegate, UITableVi
             group.leave()
         }
         group.notify(queue: .main) {
+            if let subviewWithTag = self.view.viewWithTag(123) {
+                subviewWithTag.removeFromSuperview()
+            }
             self.tableview.reloadData()
+            if Organisations?.count == 0 {
+                self.addnote()
+            }
         }
     }
     

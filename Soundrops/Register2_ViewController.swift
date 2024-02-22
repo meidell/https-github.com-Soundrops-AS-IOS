@@ -11,9 +11,10 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
     var age = [Int](15...80)
     var ageString = [String]()
     var bChanged = false
+    var bGood = false
     lazy var geocoder = CLGeocoder()
-    @IBOutlet weak var fldOrganisation: UITextField!
-    @IBOutlet weak var fldFirstLetter: UILabel!
+
+    @IBOutlet weak var fld_organisasjon: UITextField!
     @IBOutlet weak var fld_name: UITextField!
     @IBOutlet weak var fld_postal_code: UITextField!
     @IBOutlet weak var btn_female: UIButton!
@@ -24,16 +25,15 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
         fld_name.addTarget(self, action: #selector(fldName), for: .editingChanged)
         fld_postal_code.addTarget(self, action: #selector(fldPostalCode), for: .editingChanged)
+        fld_postal_code.keyboardType = .numberPad
         ageString = age.map { String($0) }
         ageString.insert("-", at: 0)
         
         run(after: 1) {
             let location = CLLocation(latitude: myuser.userlat, longitude: myuser.userlon)
-            self.geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
-                self.processResponse(withPlacemarks: placemarks, error: error)
-            }
         }
         
         let myColour = UIColor(red: 255/255, green: 0/255, blue: 0/255, alpha: 1)
@@ -52,7 +52,7 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
         
         fld_name.text = myuser.username.uppercased().replacingOccurrences(of: "_", with: " ")
         fld_postal_code.text = myuser.userhometown.uppercased()
-        fldOrganisation.text = myorg.orgname.uppercased()
+        fld_organisasjon.text = myorg.orgname.uppercased()
         
         var thisAge = myuser.userage
         if myuser.userage > 15 {
@@ -60,11 +60,18 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
             pck_age.selectRow(thisAge, inComponent: 0, animated: false)
         }
         
+        btn_continue.backgroundColor = UIColor.red
+        btn_continue.titleLabel?.textColor = UIColor.white
+        
         let myColour2 = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
 
-        fldOrganisation.layer.cornerRadius = 5.0
-        fldOrganisation.layer.borderColor = myColour2.cgColor
-        fldOrganisation.layer.borderWidth = 1
+        fld_organisasjon.layer.cornerRadius = 5.0
+        fld_organisasjon.layer.borderColor = myColour2.cgColor
+        fld_organisasjon.layer.borderWidth = 1
+        
+        fld_name.layer.cornerRadius = 5.0
+        fld_name.layer.borderColor = myColour2.cgColor
+        fld_name.layer.borderWidth = 1
         
         fld_postal_code.layer.cornerRadius = 5.0
         fld_postal_code.layer.borderColor = myColour2.cgColor
@@ -83,7 +90,7 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
         btn_continue.layer.borderWidth = 1
         
         let attributedString = NSAttributedString(
-          string: NSLocalizedString("Continue", comment: ""),
+          string: NSLocalizedString("Fortsett", comment: ""),
           attributes:[
             NSAttributedString.Key.underlineStyle:0
           ])
@@ -93,23 +100,26 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
         pck_age.layer.borderColor = myColour2.cgColor
         pck_age.layer.borderWidth = 1
         
-        fldFirstLetter.text = "S"
-        fldFirstLetter.layer.cornerRadius = fldFirstLetter.frame.width / 2
-        fldFirstLetter.layer.borderColor = myColour2.cgColor
-        fldFirstLetter.layer.borderWidth = 1
-        fldFirstLetter.backgroundColor = UIColor.red
-        fldFirstLetter.clipsToBounds = true
-
         NotificationCenter.default.addObserver(self, selector: #selector(Register2_ViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(Register2_ViewController.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         checkChange()
+
     }
-       
+    
+    @IBAction func fldthat(_ sender: Any) {
+        performSegue(withIdentifier: "register2_to_register1_segue", sender: self)
+    }
+    
+    
     @IBAction func fldPostalCode(_ sender: Any) {
 
         if fld_postal_code.text!.count > 4 {
-            fld_postal_code.text=""
+            fld_postal_code.text = ""
+        }
+        
+        if fld_postal_code.text!.count == 0 {
+            myuser.userhometown = ""
         }
 
         if fld_postal_code.text?.count == 4 && fld_postal_code.text?.isNumber == true {
@@ -120,19 +130,43 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
                 group.leave()
             }
             group.notify(queue: .main) {
-                self.fld_postal_code.text = myuser.userhometown
-                self.fld_postal_code.resignFirstResponder()
+                
+                if myuser.userhometown != "" {
+                    self.fld_postal_code.text = myuser.userhometown
+                    self.fld_postal_code.resignFirstResponder()
+                    self.checkChange()
+                } else {
+                    self.fld_postal_code.text = ""
+                    self.fld_postal_code.resignFirstResponder()
+                    self.checkChange()
+                    
+                    let alertController = UIAlertController(title: "Feil", message: "Postkoden eksisterer ikke", preferredStyle: .alert)
+                    let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+                        self.fld_postal_code.becomeFirstResponder()
+                    }
+                    alertController.addAction(okAction)
+                    if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let window = scene.windows.first,
+                       let topController = window.rootViewController {
+                        
+                        var topPresentedController = topController
+                        while let presentedController = topPresentedController.presentedViewController {
+                            topPresentedController = presentedController
+                        }
+                        
+                        topPresentedController.present(alertController, animated: true, completion: nil)
+                    }
+                }
+
             }
         }
         checkChange()
     }
+
     
     @objc func fldName(textField: UITextField) {
         myuser.username = fld_name.text!
-    }
-    
-    @IBAction func fldOrganisation(_ sender: Any) {
-        performSegue(withIdentifier: "register2_to_register1_segue", sender: self)
+        checkChange()
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -142,26 +176,63 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
     }
     
     func checkChange() {
-        if myuser.userage>0 && myuser.username != "" && myuser.userhometown != "" && myuser.usergender > 0 && userpostlat > 0 && userpostlon > 0 {
-            btn_continue.backgroundColor = UIColor.red
-            btn_continue.titleLabel?.textColor = UIColor.white
+        if myuser.userage>0 && myuser.username != "" && myuser.userhometown != "" && myuser.usergender > 0 && myuser.userlat > 0 && myuser.userlon > 0 {
+            bGood = true
+//            btn_continue.backgroundColor = UIColor.red
+//            btn_continue.titleLabel?.textColor = UIColor.white
         } else {
-            btn_continue.backgroundColor = UIColor.white
-            btn_continue.titleLabel?.textColor = UIColor.lightGray
+            bGood = false
+//            btn_continue.backgroundColor = UIColor.white
+//            btn_continue.titleLabel?.textColor = UIColor.lightGray
         }
     }
     
     @IBAction func btn_continue(_ sender: Any) {
-        c_api.postrequest(params: "", key: "updateuser") {
-            let params = "/"+userChannel+"/"+String(userpostlat)+"/"+String(userpostlon)
-            c_api.getrequest(params: params, key: "getuser") {
-                myuser.userprofile = 1
-                KeychainSwift().set("1", forKey: "profile")
+        if bGood {
+            if userChannel == "" || myuser.userprofile == 0 {
+                performSegue(withIdentifier: "register2_register3", sender: self)
+            } else {
+                let userchannel = userChannel
+                c_api.postrequest(params: "", key: "updateuser") {
+                    let params = "/"+userchannel+"/"+String(myuser.userlat)+"/"+String(myuser.userlon)
+                    c_api.getrequest(params: params, key: "getuser") {
+                        DispatchQueue.main.async {
+                            self.performSegue(withIdentifier: "register2_to_dashboard_segue", sender: self)
+                        }
+
+                    }
+                }
             }
+
+        } else {
+            
+            var resultString = ""
+
+            if myuser.userage<1  {
+                resultString += "\n Alder"
+            }
+            if myuser.username == "" {
+                resultString += "\n Brukernavn"
+            }
+            if myuser.userhometown == "" {
+                resultString += "\n Postnummer"
+            }
+            if myuser.usergender < 1 {
+                resultString += "\n Kjønn"
+            }
+
+            let alertController = UIAlertController(title: "Fyll inn:",
+                                                    message: resultString,
+                                                    preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+            alertController.addAction(cancelAction)
+            self.present(alertController, animated: true, completion: nil)
+
         }
-        performSegue(withIdentifier: "register2_to_dashboard_segue", sender: self)
     }
     
+    
+
     func run(after seconds: Int, completion: @escaping () -> Void) {
         let deadline = DispatchTime.now() + .seconds(seconds)
         DispatchQueue.main.asyncAfter(deadline: deadline) {
@@ -249,16 +320,7 @@ class Register2_ViewController: UIViewController, UITextFieldDelegate, UIPickerV
         return true
     }
     
-    private func processResponse(withPlacemarks placemarks: [CLPlacemark]?, error: Error?) {
-        if error != nil {
-        } else {
-            if let placemarks = placemarks, let placemark = placemarks.first {
-                if placemark.postalCode != nil {
-                    userCountry = placemark.isoCountryCode!
-                }
-            }
-        }
-    }
+  
     
     // If we have been deined access give the user the option to change it
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {

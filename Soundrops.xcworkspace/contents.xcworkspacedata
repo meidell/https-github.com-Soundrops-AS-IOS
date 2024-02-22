@@ -2,12 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/janerikmeidell/iCloud Drive (Archive)/Documents/Lexigo/My Apps/Soundrops Xcode/Soundrops.xcodeproj">
+      location = "group:Soundrops.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:Soundrops.xcodeproj">
    </FileRef>
 </Workspace>

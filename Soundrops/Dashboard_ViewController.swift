@@ -16,64 +16,224 @@ let requestGroup =  DispatchGroup()
 
 class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
     
-    @IBOutlet weak var imgSmile: UIButton!
+    @IBOutlet weak var btnAnnonser: UIButton!
+    @IBOutlet weak var btnDel: UIButton!
+    @IBOutlet weak var btnTopTen: UIButton!
+    @IBOutlet weak var imgSmiley: UIImageView!
     @IBOutlet weak var btnCategory: UIButton!
     @IBOutlet weak var btnNearby: UIButton!
-    @IBOutlet weak var btnMyadds: UIButton!
     @IBOutlet weak var btnSetting: UIButton!
     @IBOutlet weak var btnPerks: UIButton!
-    @IBOutlet weak var btnAdvertisors: UIButton!
     @IBOutlet weak var btnFavourites: UIButton!
+    @IBOutlet weak var minKamp: UIButton!
     @IBOutlet weak var img_white_back: UIImageView!
-    @IBOutlet weak var fldCopyright: UILabel!
     @IBOutlet weak var img_rounded_label: UIImageView!
     @IBOutlet weak var img_graph: UIImageView!
     @IBOutlet weak var img_people: UIImageView!
     @IBOutlet weak var lblCommunityName: UILabel!
     @IBOutlet weak var lblAmount: UILabel!
     @IBOutlet weak var lblMembers: UILabel!
-    @IBOutlet weak var lbl_badge: UITextField!
- 
+    @IBOutlet weak var lbl_badge: UILabel!
     @IBOutlet weak var img_background: UIImageView!
-        
+    @IBOutlet weak var lblAktiv: UILabel!
+    
+    
+    var notificationSwitch: UISwitch!
+    var bGood: Bool = false
+    var locationManager: CLLocationManager?
+    var isConnectedtoLocalisation: Bool = false
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.navigationController?.isNavigationBarHidden = true
+    }
+            
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
         c_api.getrequest(params: "", key: "getadcategories") {
+            c_api.getrequest(params: "", key: "getcompetition") {               
+            }
         }
         
+        bGood = true
+        lastView = "Dashboard"
+
         filldashboard()
-        
-        if isConnectedtoWifi {
-            c_wifi.getLocation()
-            if !isConnectedtoWifi {
-                let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-                }))
-                self.present(alert, animated: true, completion: nil)
-            }
-            let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(self.handleGesture))
-            swipeLeft.direction = .left
-            self.view.addGestureRecognizer(swipeLeft)
-            
-            let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(self.handleGesture))
-            swipeRight.direction = .right
-            self.view.addGestureRecognizer(swipeRight)
-            
-            let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(self.handleGesture))
-            swipeUp.direction = .up
-            self.view.addGestureRecognizer(swipeUp)
-        } else {
-            
-            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-            }))
-            self.present(alert, animated: true, completion: nil)
+       
+        if showWarning {
+            checkLocationServices()
+            checkNotificationServices()
         }
     }
     
-    func filldashboard() {
+    
+    
+    func checkLocationServices() {
+        if CLLocationManager.locationServicesEnabled() {
+            // Initialize location manager
+            locationManager = CLLocationManager()
+            locationManager?.delegate = self
+
+            // Check the current authorization status
+            switch locationManager?.authorizationStatus {
+            case .authorizedWhenInUse, .authorizedAlways:
+                isConnectedtoLocalisation = true
+            case .denied, .restricted:
+                isConnectedtoLocalisation = false
+                // Optionally, show a custom alert to the user explaining why location services are important
+            case .notDetermined:
+                // Request authorization for location services when the app is in use
+                locationManager?.requestWhenInUseAuthorization()
+                isConnectedtoLocalisation = false
+            @unknown default:
+                isConnectedtoLocalisation = false
+            }
+        } else {
+            // Location services are disabled
+            isConnectedtoLocalisation = false
+        }
+
+        // Update the UI on the main thread after checking
+        DispatchQueue.main.async {
+            self.showWarningsIfNeeded()
+        }
+    }
+
+//
+//    func checkLocationServices() {
+//        if CLLocationManager.locationServicesEnabled() {
+//            let locationManager = CLLocationManager()
+//            switch locationManager.authorizationStatus {
+//            case .authorizedWhenInUse, .authorizedAlways:
+//                isConnectedtoLocalisation = true
+//            case .denied, .restricted, .notDetermined:
+//                isConnectedtoLocalisation = false
+//            @unknown default:
+//                isConnectedtoLocalisation = false
+//            }
+//        } else {
+//            isConnectedtoLocalisation = false
+//        }
+//        
+//        DispatchQueue.main.async {
+//            self.showWarningsIfNeeded()
+//        }
+//    }
+    
+    func checkNotificationServices() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            switch settings.authorizationStatus {
+            case .authorized, .provisional:
+                isConnectedtoNotifications = true
+            case .denied, .notDetermined:
+                isConnectedtoNotifications = false
+            default:
+                isConnectedtoNotifications = false
+            }
+            DispatchQueue.main.async {
+                self.showWarningsIfNeeded()
+            }
+        }
+    }
+
+    func showWarningsIfNeeded() {
         
+        let screenWidth = UIScreen.main.bounds.width
+        if !isConnectedtoLocalisation && showWarning {
+            let locationView1 = UIView(frame: CGRect(x: screenWidth*0.1, y: 130, width: screenWidth*0.8, height: 100))
+            locationView1.backgroundColor = UIColor.white
+            locationView1.layer.cornerRadius = 10
+            let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: locationView1.frame.width - 20, height: locationView1.frame.height - 20))
+            label1.text = "Lokalisering er skrudd av!\n Skru  på lokalisering for å få bedre treffsikerhet på reklamer."
+            label1.font = UIFont.systemFont(ofSize: 16)
+            label1.textColor = .darkGray
+            label1.numberOfLines = 0
+            label1.textAlignment = .center
+            locationView1.addSubview(label1)
+            view.addSubview(locationView1)
+            UIView.animate(withDuration: 0.5, delay: 6.0, options: .curveEaseOut, animations: {
+                locationView1.alpha = 0.0
+            }, completion: { finished in
+                locationView1.removeFromSuperview()
+            })
+        }
+        
+        if !isConnectedtoNotifications && showWarning {
+            let notificationView2 = UIView(frame: CGRect(x: screenWidth * 0.1, y: 240, width: screenWidth * 0.8, height: 100))
+            notificationView2.backgroundColor = UIColor.white
+            notificationView2.layer.cornerRadius = 10
+
+            let label2 = UILabel(frame: CGRect(x: 10, y: 10, width: notificationView2.frame.width - 20, height: notificationView2.frame.height - 20))
+            label2.text = "Dine varslinger er skrudd av!\nVarslinger må være på for at støttefunksjoner i appen skal fungere."
+            label2.font = UIFont.systemFont(ofSize: 16)
+            label2.textColor = UIColor.darkGray
+            label2.numberOfLines = 0
+            label2.textAlignment = .center
+
+            notificationView2.addSubview(label2)
+            view.addSubview(notificationView2)
+
+            UIView.animate(withDuration: 0.75, delay: 6.0, options: .curveEaseOut, animations: {
+                notificationView2.alpha = 0.0
+            }, completion: { finished in
+                notificationView2.removeFromSuperview()
+            })
+        }
+        
+        showWarning = false
+    }
+    
+    func filldashboard() {
+        if currentOrg != myorg.orgid {
+            currentOrg = myorg.orgid
+            c_api.getrequest(params: "", key: "getmainimages") {
+                mainImageCounter = 0
+                let imageCount = mainimages?.count ?? 0
+                if imageCount > 0 && mainImageCounter < mainimages?.count ?? 0 {
+                    AF.request(mainimages![mainImageCounter].image).responseImage { response in
+                        switch response.result {
+                        case .success(let image):
+                            self.img_background.image = image
+                        case .failure(let error):
+                            print("Error loading image: \(error)")
+                        }
+                        self.img_background.layer.masksToBounds = true
+                        if mainImageCounter == (imageCount-1) {
+                            mainImageCounter = 0
+                        } else {
+                            mainImageCounter += 1
+                        }
+                    }
+                } else {
+                    self.img_background.image = UIImage(named:"iStock-893114564")
+                    self.img_background.layer.masksToBounds = true
+                }
+            }
+        } else {
+            let imageCount = mainimages?.count ?? 0
+            if imageCount > 0 && mainImageCounter < mainimages?.count ?? 0 {
+                AF.request(mainimages![mainImageCounter].image).responseImage { response in
+                    switch response.result {
+                    case .success(let image):
+                        self.img_background.image = image
+                    case .failure(let error):
+                        print("Error loading image: \(error)")
+                    }
+                    self.img_background.layer.masksToBounds = true
+                    if mainImageCounter == (imageCount-1) {
+                        mainImageCounter = 0
+                    } else {
+                        mainImageCounter += 1
+                    }
+                }
+            } else {
+                self.img_background.image = UIImage(named:"iStock-893114564")
+                self.img_background.layer.masksToBounds = true
+            }
+        }
+
         if UIApplication.shared.applicationIconBadgeNumber > 0 {
             lbl_badge.frame.size.height = 25
             lbl_badge.frame.size.width = 25
@@ -89,35 +249,18 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
             lbl_badge.isHidden = true
         }
         
-        let frame = lblMembers.frame //Frame of label
+        let frame = lblMembers.frame
         let topLayer = CALayer()
         topLayer.frame = CGRect(x: 0, y: 0, width: frame.width, height: 1)
         topLayer.backgroundColor = UIColor.gray.cgColor
         lblMembers.layer.addSublayer(topLayer)
         
-        let frame1 = lblAmount.frame //Frame of label
+        let frame1 = lblAmount.frame
         let topLayer1 = CALayer()
         topLayer1.frame = CGRect(x: 0, y: 0, width: frame1.width, height: 1)
         topLayer1.backgroundColor = UIColor.gray.cgColor
         lblAmount.layer.addSublayer(topLayer1)
         
-        
-        if ((mainimages?[mainImageCounter].image) == nil) {
-            self.img_background.image = UIImage(named:"iStock-893114564")
-            self.img_background.layer.masksToBounds = true
-        } else {
-            Alamofire.request(mainimages![mainImageCounter].image).responseImage { response in
-                self.img_background.image = response.result.value
-                self.img_background.layer.masksToBounds = true
-                if mainImageCounter == 2 {
-                    mainImageCounter = 0
-                } else {
-                    mainImageCounter += 1
-                }
-            }
-        }
-
-
         UIView.animate(withDuration: 0.0, delay: 0, animations: {
             self.img_background.alpha = 0.0
         }, completion: nil)
@@ -134,167 +277,160 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
         self.lblAmount.text = "NOK "+result!
         self.lblMembers.text = String(myorg.orgfollowers)
         self.lblCommunityName.text = myorg.orgname.uppercased()
-    
+        
+        AF.request(myorg.orglogo).responseImage { response in
+            switch response.result {
+            case .success(let image):
+                let aspectRatio = image.size.width / image.size.height
+                let desiredWidth: CGFloat = self.view.bounds.size.width*0.17
+                let desiredHeight = desiredWidth / aspectRatio
+                self.imgSmiley.frame.size = CGSize(width: desiredWidth, height: desiredHeight)
+                self.imgSmiley.center.x = self.view.center.x
+                self.imgSmiley.center.y = self.lblCommunityName.center.y - 50
+                self.imgSmiley.image = image
+                self.imgSmiley.contentMode = .scaleAspectFit
+                self.imgSmiley.layer.cornerRadius = 6
+                self.imgSmiley.layer.borderWidth = 1
+                let myColour8 = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
+                self.imgSmiley.layer.borderColor = myColour8.cgColor
+                self.imgSmiley.clipsToBounds = true
+            case .failure(let error):
+                print("Error loading image: \(error)")
+            }
+
+        }
+
         let myColour = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
         
-        btnMyadds.backgroundColor = .clear
-        btnMyadds.layer.cornerRadius = 6
-        btnMyadds.layer.borderWidth = 1
-        btnMyadds.layer.borderColor = myColour.cgColor
-        let attributedString1 = NSAttributedString(string: NSLocalizedString("Mine tilbud", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
-        btnMyadds.setAttributedTitle(attributedString1, for: .normal)
+        btnAnnonser.layer.cornerRadius = 6
+        btnAnnonser.layer.borderWidth = 1
+        btnAnnonser.layer.borderColor = myColour.cgColor
+        let attributedString1 = NSAttributedString(string: NSLocalizedString("Annonser", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        btnAnnonser.setAttributedTitle(attributedString1, for: .normal)
+      
         
-        btnPerks.backgroundColor = .clear
         btnPerks.layer.cornerRadius = 6
         btnPerks.layer.borderWidth = 1
         btnPerks.layer.borderColor = myColour.cgColor
-        let attributedString2 = NSAttributedString(string: NSLocalizedString("Perks", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        let attributedString2 = NSAttributedString(string: NSLocalizedString("Fordeler", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnPerks.setAttributedTitle(attributedString2, for: .normal)
+        
+        btnDel.layer.cornerRadius = 6
+        btnDel.layer.borderWidth = 1
+        btnDel.layer.borderColor = myColour.cgColor
+        let attributedString7 = NSAttributedString(string: NSLocalizedString("Verv en venn", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        btnDel.setAttributedTitle(attributedString7, for: .normal)
+        
+        btnTopTen.layer.cornerRadius = 6
+        btnTopTen.layer.borderWidth = 1
+        btnTopTen.layer.borderColor = myColour.cgColor
+        let attributedString8 = NSAttributedString(string: NSLocalizedString("Top 10", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        btnTopTen.setAttributedTitle(attributedString8, for: .normal)
 
-        btnCategory.backgroundColor = .clear
         btnCategory.layer.cornerRadius = 6
         btnCategory.layer.borderWidth = 1
         btnCategory.layer.borderColor = myColour.cgColor
         let attributedString3 = NSAttributedString(string: NSLocalizedString("Kategorier", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnCategory.setAttributedTitle(attributedString3, for: .normal)
- 
-        btnSetting.backgroundColor = .clear
+
         btnSetting.layer.cornerRadius = 6
         btnSetting.layer.borderWidth = 1
         btnSetting.layer.borderColor = myColour.cgColor
         let largeConfig = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .small)
-        let image = UIImage(systemName: "gearshape.fill", withConfiguration: largeConfig)?.withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+        let image = UIImage(systemName: "gearshape.fill", withConfiguration: largeConfig)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
         btnSetting.setImage(image, for: .normal)
         btnSetting.imageView?.contentMode = .scaleAspectFit
         
-        btnNearby.backgroundColor = .clear
         btnNearby.layer.cornerRadius = 6
         btnNearby.layer.borderWidth = 1
         btnNearby.layer.borderColor = myColour.cgColor
         let attributedString4 = NSAttributedString(string: NSLocalizedString("Nær meg", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnNearby.setAttributedTitle(attributedString4, for: .normal)
-        
-        btnFavourites.backgroundColor = .clear
+  
         btnFavourites.layer.cornerRadius = 6
         btnFavourites.layer.borderWidth = 1
         btnFavourites.layer.borderColor = myColour.cgColor
         let attributedString5 = NSAttributedString(string: NSLocalizedString("Favoritter", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnFavourites.setAttributedTitle(attributedString5, for: .normal)
         
-        let attributedString6 = NSAttributedString(string: NSLocalizedString("ANNONSØRER", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
-        btnAdvertisors.setAttributedTitle(attributedString6, for: .normal)
+        lblAktiv.layer.cornerRadius = 6
+        lblAktiv.layer.borderWidth = 1
+        lblAktiv.layer.borderColor = UIColor.red.cgColor  // Or any custom color
+        lblAktiv.clipsToBounds = true
         
-    }
-    
-    func popupUpdateDialogue1(){
-        
-        userNotification = "0"
-        let alertMessage = "Vennligst gå til innstillinger."
-        let alert = UIAlertController(title: "Vi la merke til at varsler er deaktivert. Dette betyr at innsamlingspotensialet er begrenset. I mellomtiden kan du gjerne dra nytte av de mange gode tilbudene i denne appen.", message: alertMessage, preferredStyle: UIAlertController.Style.alert)
-        let okBtn = UIAlertAction(title: "OK", style: .default, handler: {(_ action: UIAlertAction) -> Void in
-            
-            let settingsUrl = URL(string: UIApplication.openSettingsURLString)
-            
-            if UIApplication.shared.canOpenURL(settingsUrl!) {
-                if #available(iOS 10.0, *) {
-                    UIApplication.shared.open(settingsUrl!, completionHandler: { (success) in
-                    })
-                } else {
-                    UIApplication.shared.openURL(settingsUrl!)
-                }
-            }
-        })
-        let laterBtn = UIAlertAction(title: "Senere", style: .default, handler: {(_ action: UIAlertAction) -> Void in
-            saidLater = true
-        })
-        alert.addAction(okBtn)
-        alert.addAction(laterBtn)
-        self.present(alert, animated: true, completion: nil)
-        
-    }
-    
-    func popupUpdateDialogue2(){
-        
-        let alertMessage = "Vennligst gå til innstillinger."
-        let alert = UIAlertController(title: "For denne funksjonen må lokaliseringstjenester være slått på.", message: alertMessage, preferredStyle: UIAlertController.Style.alert)
-        let okBtn = UIAlertAction(title: "OK", style: .default, handler: {(_ action: UIAlertAction) -> Void in
-            
-            let settingsUrl = URL(string: UIApplication.openSettingsURLString)
-            
-            if UIApplication.shared.canOpenURL(settingsUrl!) {
-                if #available(iOS 10.0, *) {
-                    UIApplication.shared.open(settingsUrl!, completionHandler: { (success) in
-                    })
-                } else {
-                    UIApplication.shared.openURL(settingsUrl!)
-                }
-            }
-        })
-        alert.addAction(okBtn)
-        self.present(alert, animated: true, completion: nil)
-        
-    }
-    
-    @objc func handleGesture(gesture: UISwipeGestureRecognizer) -> Void {
-        if gesture.direction == UISwipeGestureRecognizer.Direction.right {
-                        
-            cmptype = "myads"
-            let trans = CATransition()
-            trans.type = CATransitionType.moveIn
-            trans.subtype = CATransitionSubtype.fromLeft
-            trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            trans.duration = 0.25
-            self.navigationController?.view.layer.add(trans, forKey: nil)
-            self.performSegue(withIdentifier: "lists", sender: self)
+        minKamp.layer.cornerRadius = 6
+        minKamp.layer.borderWidth = 1
+        minKamp.layer.borderColor = myColour.cgColor
+        let attributedString9 = NSAttributedString(string: NSLocalizedString("Drakamp", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        minKamp.setAttributedTitle(attributedString9, for: .normal)
+        if competitionOn == 1 {
+            self.lblAktiv.isHidden = false
+            self.minKamp.alpha = 1
+            self.minKamp.isEnabled = true
+        } else {
+            minKamp.alpha = 0.5
+            minKamp.isEnabled = false
+            lblAktiv.isHidden = true
         }
-        else if gesture.direction == UISwipeGestureRecognizer.Direction.left {
-           
-            cmptype = "nearby"
-            let trans = CATransition()
-            trans.type = CATransitionType.moveIn
-            trans.subtype = CATransitionSubtype.fromRight
-            trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            trans.duration = 0.25
-            self.navigationController?.view.layer.add(trans, forKey: nil)
-            self.performSegue(withIdentifier: "lists", sender: self)
-        }
-        else if gesture.direction == UISwipeGestureRecognizer.Direction.up {
-            UIView.animate(withDuration: 0.2, animations: {
-                self.img_rounded_label.frame.origin.y = 0
-                self.img_white_back.frame.origin.y = 0
+    }
+    
+ 
 
-            }, completion: nil)
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-                let trans = CATransition()
-                trans.type = CATransitionType.moveIn
-                trans.subtype = CATransitionSubtype.fromBottom
-                trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-                trans.duration = 0.2
-                self.navigationController?.view.layer.add(trans, forKey: nil)
-                self.performSegue(withIdentifier: "mainToCommunity", sender: self)
+    
+    @IBAction func btnTipsNoen(_ sender: Any) {
+        
+        let orgIdString = String(decoding: String(myorg.orgid).data(using: String.Encoding.utf8)!, as: UTF8.self)
+        let usernameString = String(decoding: myuser.username.data(using: .utf8)!, as: UTF8.self)
+        let data = "orgid#" + orgIdString + "__user#" + usernameString
+        
+        let encodedData = (data.data(using: .utf8)?.base64EncodedString())!
+        let urlString = "https://share50.no/org/" + encodedData
+        // Swift code
+       // let urlString = "https://vg.no"
+        guard let url = URL(string: urlString) else { return }
+
+        let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        activityViewController.excludedActivityTypes = [.postToTwitter, .saveToCameraRoll] // Optional: exclude unwanted activities
+        present(activityViewController, animated: true, completion: nil)
+        
+    }
+    
+    func areNotificationsEnabled(completion: @escaping (Bool) -> Void) {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            switch settings.authorizationStatus {
+            case .authorized:
+                completion(true)
+            case .denied:
+                completion(false)
+            case .notDetermined:
+                completion(false)
+            case .provisional:
+                completion(true)
+            case .ephemeral:
+                print("missing cases")
+            @unknown default:
+                completion(false)
             }
-        }
-        else if gesture.direction == UISwipeGestureRecognizer.Direction.down {
         }
     }
     
     @IBAction func btnProfile(_ sender: UIButton) {
-        
-        if Reachability.isConnectedToNetwork(){
+        if bGood {
             self.performSegue(withIdentifier: "dashboard_to_profile1", sender: self)
-        }else{
-            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-            }))
-            self.present(alert, animated: true, completion: nil)
         }
     }
     
+    @IBAction func btnTopTen(_ sender: Any) {
+        self.performSegue(withIdentifier: "dashboard_topten", sender: self)
+    }
+
+    @IBAction func btnDrakampen(_ sender: Any) {
+        self.performSegue(withIdentifier: "dashboard_drakamp", sender: self)
+    }
     
     @IBAction func btnFavourites(_ sender: Any) {
-        
-        cmptype="follow"
-       // DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+        if bGood {
+            cmptype="follow"
             let trans = CATransition()
             trans.type = CATransitionType.moveIn
             trans.subtype = CATransitionSubtype.fromLeft
@@ -302,43 +438,31 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
             trans.duration = 0.25
             self.navigationController?.view.layer.add(trans, forKey: nil)
             self.performSegue(withIdentifier: "lists", sender: self)
-     //   }
+        }
     }
     
     @IBAction func btnMyAdds(_ sender: Any) {
-        
-        if Reachability.isConnectedToNetwork(){
+        if bGood {
             UIApplication.shared.applicationIconBadgeNumber = 0
             cmptype = "myads"
-            let trans = CATransition()
-            trans.type = CATransitionType.moveIn
-            trans.subtype = CATransitionSubtype.fromLeft
-            trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            trans.duration = 0.25
-            self.navigationController?.view.layer.add(trans, forKey: nil)
             self.performSegue(withIdentifier: "lists", sender: self)
-        }else{
-            let alert = UIAlertController(title: "Ingen internettforbindelse!", message: "Denne appen trenger internett for å kunne brukes. Koble deg til og prøv igjen.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-            }))
-            self.present(alert, animated: true, completion: nil)
         }
     }
     
     @IBAction func btnPerks(_ sender: Any) {
-              performSegue(withIdentifier: "dashboard_to_perks", sender: self)
+        if bGood {
+            performSegue(withIdentifier: "dashboard_to_perks", sender: self)
+        }
+    }
+    @IBAction func btnDrakamp(_ sender: Any) {
+        performSegue(withIdentifier: "dashboard_drakamp", sender: self)
     }
     
     @IBAction func btnNearby(_ sender: Any) {
-        
-        cmptype = "nearby"
-        let trans = CATransition()
-        trans.type = CATransitionType.moveIn
-        trans.subtype = CATransitionSubtype.fromRight
-        trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-        trans.duration = 0.25
-        self.navigationController?.view.layer.add(trans, forKey: nil)
-        self.performSegue(withIdentifier: "lists", sender: self)
+        if bGood {
+            cmptype = "nearby"
+            self.performSegue(withIdentifier: "lists", sender: self)
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -351,43 +475,5 @@ class Dashboard_ViewController: UIViewController, CLLocationManagerDelegate {
             self.navigationController?.view.layer.add(trans, forKey: nil)
         }
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        self.navigationController?.isNavigationBarHidden = true
-    }
-    
-    func loadCampaign() {
-
-        let activityIndicator = UIActivityIndicatorView(style: .medium)
-        view.addSubview(activityIndicator)
-        activityIndicator.frame = view.bounds
-        activityIndicator.startAnimating()
-
-        activityIndicator.removeFromSuperview()
-        if  cmptype == "myads"  {
-            let trans = CATransition()
-            trans.type = CATransitionType.moveIn
-            trans.subtype = CATransitionSubtype.fromLeft
-            trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            trans.duration = 0.25
-            self.navigationController?.view.layer.add(trans, forKey: nil)
-            self.performSegue(withIdentifier: "lists", sender: self)
-
-        } else {
-            let trans = CATransition()
-            trans.type = CATransitionType.moveIn
-            trans.subtype = CATransitionSubtype.fromRight
-            trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            trans.duration = 0.25
-            self.navigationController?.view.layer.add(trans, forKey: nil)
-            self.performSegue(withIdentifier: "lists", sender: self)
-        }
-
-    }
 }
-
-
-
-
-
 

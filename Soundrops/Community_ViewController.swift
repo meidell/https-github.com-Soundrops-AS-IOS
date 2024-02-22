@@ -9,41 +9,67 @@
 import UIKit
 import Alamofire
 import AlamofireImage
+import SwiftUI
+import Charts
+import Foundation
+
 
 class Community_ViewController: UIViewController {
         
     @IBOutlet weak var lblOrganisation: UILabel!
     @IBOutlet weak var btnHome: UIButton!
-    @IBOutlet weak var lbl_soundrops_communit: UILabel!
     @IBOutlet weak var lblMembers: UILabel!
     @IBOutlet weak var logo: UIImageView!
     @IBOutlet weak var lblAmount: UILabel!
     @IBOutlet weak var btnTell: UIButton!
     @IBOutlet weak var lblFunds: UILabel!
     @IBOutlet weak var textCommunity: UILabel!
-    @IBOutlet weak var imageCommunity: UIImageView!
-    
+    @IBOutlet var fldAntall: UIView!
     @IBOutlet var btnSmile: UIView!
     
-    @IBAction func btnMyPage(_ sender: Any) {
-        self.performSegue(withIdentifier: "community_to_mypage", sender: self)
+    @IBAction func btnHome(_ sender: Any) {
+        self.performSegue(withIdentifier: "community_to_profile1", sender: self)
     }
     
     @IBAction func btnTell(_ sender: Any) {
         
-        let URL_AD = "https://share50.no"
-        let activityController = UIActivityViewController(activityItems: [URL_AD], applicationActivities: nil)
-        present(activityController, animated: true, completion: nil)
+        let orgIdString = String(decoding: String(myorg.orgid).data(using: String.Encoding.utf8)!, as: UTF8.self)
+        let usernameString = String(decoding: myuser.username.data(using: .utf8)!, as: UTF8.self)
+        let data = "orgid#" + orgIdString + "__user#" + usernameString
+        
+        let encodedData = (data.data(using: .utf8)?.base64EncodedString())!
+        let urlString = "https://share50.no/org/" + encodedData
+        // Swift code
+       // let urlString = "https://vg.no"
+        guard let url = URL(string: urlString) else { return }
+
+        let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        activityViewController.excludedActivityTypes = [.postToTwitter, .saveToCameraRoll] // Optional: exclude unwanted activities
+        present(activityViewController, animated: true, completion: nil)
     }
+    
+    func base64Encode(_ data: String) -> String? {
+        guard let encodedData = data.data(using: .utf8)?.base64EncodedString() else {
+            return nil
+        }
+        return encodedData
+    }
+  
     
     override func viewDidAppear(_ animated: Bool) {self.navigationController?.isNavigationBarHidden = true}
     
     override func viewDidLoad() {
         super.viewDidLoad()
+    
 
-        Alamofire.request(myorg.orglogo).responseImage { response in
-            let image = response.result.value
-            self.logo.image = image
+        AF.request(myorg.orglogo).responseImage { response in
+            switch response.result {
+               case .success(let image):
+                    self.logo.image = image
+               
+                case .failure(let error):
+                    print("Error loading image: \(error)")
+            }
         }
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
@@ -52,27 +78,15 @@ class Community_ViewController: UIViewController {
         self.lblFunds.text = "NOK "+result!
         self.lblMembers.text = String(myorg.orgfollowers)
         self.lblOrganisation.text = myorg.orgname
+        self.textCommunity.text = "Tusen takk for din støtte. Vennlig hilsen " + myorg.orgname + "."
         
-//        let bottomLayer = CALayer()
-//        bottomLayer.frame = CGRect(x: 0, y: lblOrganisation.frame.height, width: lblOrganisation.frame.width, height: 1)
-//        bottomLayer.backgroundColor = UIColor.lightGray.cgColor
-//        self.lblOrganisation.layer.addSublayer(bottomLayer)
         
         let myColour = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
-
         btnTell.layer.cornerRadius = 6
         btnTell.layer.borderWidth = 1
         btnTell.layer.borderColor = myColour.cgColor
-        let attributedString4 = NSAttributedString(string: NSLocalizedString("Tell Somebody", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
+        let attributedString4 = NSAttributedString(string: NSLocalizedString("Verv en venn", comment: ""),attributes:[NSAttributedString.Key.underlineStyle:0])
         btnTell.setAttributedTitle(attributedString4, for: .normal)
-        
-        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(handleGesture))
-        swipeUp.direction = .up
-        self.view.addGestureRecognizer(swipeUp)
-        
-        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(handleGesture))
-        swipeDown.direction = .down
-        self.view.addGestureRecognizer(swipeDown)
         
         let frame = lblMembers.frame //Frame of label
         let topLayer = CALayer()
@@ -89,61 +103,85 @@ class Community_ViewController: UIViewController {
         logo.layer.cornerRadius = 5.0
         logo.clipsToBounds = true
         
-        imageCommunity.layer.cornerRadius = 5.0
-        imageCommunity.clipsToBounds = true
-        
-        let myColour1 = UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
         btnHome.backgroundColor = .clear
         btnHome.layer.cornerRadius = btnHome.frame.width / 2
         btnHome.layer.borderWidth = 1
         btnHome.layer.borderColor = myColour.cgColor
         let largeConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        let image = UIImage(systemName: "house.fill", withConfiguration: largeConfig)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+        let image = UIImage(systemName: "arrowshape.turn.up.backward.2.fill", withConfiguration: largeConfig)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
         btnHome.setImage(image, for: .normal)
         btnHome.imageView?.contentMode = .scaleAspectFit
         
         
-        if d_me["sd_org_change"] == "true" {
-            let toastLabel = UILabel(frame: CGRect(x: self.view.frame.size.width*0.10, y: self.view.frame.size.height*0.4, width: self.view.frame.size.width*0.8, height: 100))
-            toastLabel.backgroundColor = UIColor.white.withAlphaComponent(0.8)
-            toastLabel.textColor = UIColor.darkGray
-            toastLabel.textAlignment = .center;
-            toastLabel.font = UIFont(name: "System", size: 12.0)
-            toastLabel.text = "Thank you for your support."
-            toastLabel.alpha = 1.0
-            toastLabel.layer.cornerRadius = 10;
-            toastLabel.clipsToBounds  =  true
-            toastLabel.numberOfLines = 3
-            self.view.addSubview(toastLabel)
-            UIView.animate(withDuration: 7.0, delay: 1.0, options: .curveEaseOut, animations: {
-                toastLabel.alpha = 0.0
-            }, completion: {(isCompleted) in
-                toastLabel.removeFromSuperview()
-            })
-            d_me["sd_org_change"]="false"
-
-        }
+        setupUI()
 
     }
     
-    @objc func handleGesture(gesture: UISwipeGestureRecognizer) -> Void {
-       if gesture.direction == UISwipeGestureRecognizer.Direction.up {
-            let trans = CATransition()
-            trans.type = CATransitionType.push
-            trans.subtype = CATransitionSubtype.fromTop
-            trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            trans.duration = 0.25
-            self.navigationController?.view.layer.add(trans, forKey: nil)
-            self.performSegue(withIdentifier: "community_to_dashboard", sender: self)
-       }
-        if gesture.direction == UISwipeGestureRecognizer.Direction.down {
-            let trans = CATransition()
-            trans.type = CATransitionType.push
-            trans.subtype = CATransitionSubtype.fromBottom
-            trans.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-            trans.duration = 0.25
-            self.navigationController?.view.layer.add(trans, forKey: nil)
-            self.performSegue(withIdentifier: "community_to_dashboard", sender: self)
+    private func setupUI() {
+        
+        let screenWidth = UIScreen.main.bounds.width
+        let screenHeight = UIScreen.main.bounds.height
+
+          let contentView = HistogramView().edgesIgnoringSafeArea(.all)
+          let hostingController = UIHostingController(rootView: contentView)
+            addChild(hostingController)
+        hostingController.view.frame = CGRect(x: screenWidth*0.08, y: screenHeight*0.49, width: screenWidth*0.5, height: screenHeight*0.30)
+            view.addSubview(hostingController.view)
+            hostingController.didMove(toParent: self)
+      }
+}
+
+struct Revenues: Identifiable {
+    let id = UUID()
+    let period: String
+    let amount: Double
+}
+
+let revenueDatas: [Revenues] = [
+    Revenues(period: "200", amount: 31),
+    Revenues(period: "600", amount: 94),
+    Revenues(period: "1800", amount: 281),
+]
+
+struct HistogramView: View {
+    
+    @State private var chartOpacity: Double = 0.0
+
+    var body: some View {
+        VStack {
+            Chart(revenueDatas) {
+                BarMark(
+                    x: .value("Period", $0.period),
+                    y: .value("Amount", $0.amount)
+                )
+                .foregroundStyle(Color(red: 0.12, green: 0.62, blue: 0.4))
+                
+            }
+            .opacity(chartOpacity)
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 2.5)) {
+                        chartOpacity = 1.0
+                    }
+            }
+            .chartXAxis {
+                AxisMarks(position: .bottom, values: .automatic) { value in
+                    AxisGridLine().foregroundStyle(.clear)
+                    AxisValueLabel()
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .trailing, values: .automatic) { value in
+                    AxisGridLine(centered: true, stroke: StrokeStyle(lineWidth: 1))
+                    AxisValueLabel() {
+                        if let intValue = value.as(Int.self) {
+                            Text("\(intValue)k")
+                            .font(.system(size: 10))
+                        }
+                    }
+                }
+            }
         }
+       
     }
 }
+

@@ -25,37 +25,37 @@ class AdvertisorList_ViewController: UIViewController, UITableViewDataSource, UI
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let dispatchGroup = DispatchGroup()
 
-        for ad in myAds ?? [] {
-            if let companyName = ad.companyname, !seenCompanyNames.contains(companyName) {
-                seenCompanyNames.insert(companyName)
-                Ads.append(ad)
-            }
+        dispatchGroup.enter()
+        c_api.getrequest(params: "", key: "getcompanylogos") {
+            dispatchGroup.leave()
         }
-        for ad in nearbyAds ?? [] {
-            if let companyName = ad.companyname, !seenCompanyNames.contains(companyName) {
-                seenCompanyNames.insert(companyName)
-                Ads.append(ad)
-            }
+        dispatchGroup.notify(queue: .main) {
+            
+            self.half = (Companies!.count/2)
+            let remainder = Companies!.count % 2
+            if remainder == 1  {self.half += 1}
+                    
+            self.table.dataSource = self
+            self.table.delegate = self
+            self.table.separatorStyle = UITableViewCell.SeparatorStyle.none
+            
+            let myColour2 = UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
+            self.btnBack.frame.size.width=self.btnBack.frame.height
+            self.btnBack.backgroundColor = .white
+            self.btnBack.layer.cornerRadius = self.btnBack.frame.width / 2
+            self.btnBack.layer.borderWidth = 1
+            self.btnBack.layer.borderColor = myColour2.cgColor
+            self.btnBack.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
+            let largeConfig4 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
+            let image4 = UIImage(systemName: "arrowshape.turn.up.backward.2.fill", withConfiguration: largeConfig4)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
+            self.btnBack.setImage(image4, for: .normal)
+            self.btnBack.imageView?.contentMode = .scaleAspectFit
+          
         }
         
-        half = Ads.count/2
-                
-        table.dataSource = self
-        table.delegate = self
-        table.separatorStyle = UITableViewCell.SeparatorStyle.none
-        
-        let myColour2 = UIColor(red: 235/255, green: 235/255, blue: 235/255, alpha: 1)
-        btnBack.frame.size.width=btnBack.frame.height
-        btnBack.backgroundColor = .white
-        btnBack.layer.cornerRadius = btnBack.frame.width / 2
-        btnBack.layer.borderWidth = 1
-        btnBack.layer.borderColor = myColour2.cgColor
-        btnBack.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
-        let largeConfig4 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-        let image4 = UIImage(systemName: "arrowshape.turn.up.backward.2.fill", withConfiguration: largeConfig4)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-        btnBack.setImage(image4, for: .normal)
-        btnBack.imageView?.contentMode = .scaleAspectFit
 
     }
     
@@ -79,15 +79,30 @@ class AdvertisorList_ViewController: UIViewController, UITableViewDataSource, UI
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! AdvertisorList_TableViewCell
-
-        Alamofire.request(Ads[i].logo!).responseImage { response in
-            let image = response.result.value
-            cell.icon1.image = image
+       
+        if  Companies!.count > (i) {
+            AF.request(Companies![i].logo!).responseImage { response in
+                switch response.result {
+                case .success(let image):
+                    cell.icon1.image = image
+                case .failure(let error):
+                    print("Error loading image: \(error)")
+                }
+               
+            }
         }
-        Alamofire.request(Ads[i+1].logo!).responseImage { response in
-            let image = response.result.value
-            cell.icon2.image = image
+        if  Companies!.count > (i+1) {
+            AF.request(Companies![i+1].logo!).responseImage { response in
+                switch response.result {
+                case .success(let image):
+                    cell.icon2.image = image
+                case .failure(let error):
+                    print("Error loading image: \(error)")
+                }
+               
+            }
         }
+       
         i+=2
         let myColour = UIColor(red: 250/255, green: 250/255, blue: 250/255, alpha: 1)
         cell.icon1.layer.borderColor = myColour.cgColor
@@ -106,6 +121,6 @@ class AdvertisorList_ViewController: UIViewController, UITableViewDataSource, UI
     }
     
     @IBAction func btnBack(_ sender: Any) {
-        self.performSegue(withIdentifier: "advertiser_to_dashboard", sender: self)
+        self.performSegue(withIdentifier: "advertisor_to_profile1", sender: self)
     }
 }

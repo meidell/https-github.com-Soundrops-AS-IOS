@@ -17,6 +17,8 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
     
         tableView.dataSource = self
         tableView.delegate = self
+//        tableView.frame.origin.y = view.bounds.size.height*0.13
+
         
         let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(handleGesture))
         swipeUp.direction = .up
@@ -35,23 +37,7 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
         let image1 = UIImage(systemName: "house.fill", withConfiguration: largeConfig1)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
         btnHome.setImage(image1, for: .normal)
         btnHome.imageView?.contentMode = .scaleAspectFit
-        
-//        btnFavourites.frame.size.width=btnFavourites.frame.height
-//        btnFavourites.backgroundColor = .white
-//        btnFavourites.layer.cornerRadius = btnFavourites.frame.width / 2
-//        btnFavourites.layer.borderWidth = 1
-//        btnFavourites.layer.borderColor = myColour2.cgColor
-//        btnFavourites.layer.backgroundColor = CGColor(red: 255, green: 255, blue: 255, alpha: 1)
-//        let largeConfig2 = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .small)
-//        if didScroll == false {
-//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.gray, renderingMode: .alwaysOriginal)
-//            btnFavourites.setImage(image2, for: .normal)
-//            btnFavourites.imageView?.contentMode = .scaleAspectFit
-//        } else {
-//            let image2 = UIImage(systemName: "heart.fill", withConfiguration: largeConfig2)?.withTintColor(.red, renderingMode: .alwaysOriginal)
-//            btnFavourites.setImage(image2, for: .normal)
-//            btnFavourites.imageView?.contentMode = .scaleAspectFit
-//        }
+ 
         didScroll=false
 
         btnBack.frame.size.width=btnBack.frame.height
@@ -67,31 +53,17 @@ class Category_ViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     @IBAction func btnBack(_ sender: Any) {
-        performSegue(withIdentifier: "showCategoryinForme", sender: self)
+        if lastView == "Dashboard" {
+            performSegue(withIdentifier: "category_to_dashboard", sender: self)
+        } else {
+            performSegue(withIdentifier: "showCategoryinForme", sender: self)
+        }
     }
     
     @IBAction func btnHome(_ sender: Any) {
         performSegue(withIdentifier: "category_to_dashboard", sender: self)
 
     }
-    //    @IBAction func btnFavourites(_ sender: Any) {
-//        switch g_mod {
-//        case "follow":
-//            g_mod=g_omd
-//        default:
-//            g_omd=g_mod
-//            g_mod="follow"
-//        }
-//        performSegue(withIdentifier: "showCategoryinForme", sender: self)
-//    }
-//    
-//    @IBAction func btnHome(_ sender: Any) {
-//        performSegue(withIdentifier: "category_to_dashboard", sender: self)
-//    }
-//    
-//    override func didReceiveMemoryWarning() {
-//        super.didReceiveMemoryWarning()
-//    }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
        

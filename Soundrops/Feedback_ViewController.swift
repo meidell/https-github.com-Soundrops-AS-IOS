@@ -33,18 +33,20 @@ class Feedback_ViewController: UIViewController, UITextFieldDelegate {
         fldOrg.layer.cornerRadius = 5.0
         fldOrg.layer.borderColor = myColour2.cgColor
         fldOrg.layer.borderWidth = 1
+        fldOrg.delegate = self
+
         
         fldText.layer.cornerRadius = 5.0
         fldText.layer.borderColor = myColour2.cgColor
         fldText.layer.borderWidth = 1
-        
-        fldOrg.delegate = self
         fldText.delegate = self
         
         let padding: CGFloat = 15
         fldOrg?.setPadding(left: padding, right: padding)
         fldText?.setPadding(left: padding, right: padding)
         
+        btnSend.backgroundColor = UIColor.red
+        btnSend.titleLabel?.textColor = UIColor.white
         btnSend.layer.cornerRadius = 5.0
         btnSend.layer.borderColor = myColour2.cgColor
         btnSend.layer.borderWidth = 1
@@ -53,7 +55,6 @@ class Feedback_ViewController: UIViewController, UITextFieldDelegate {
         let attributedTitle = NSAttributedString(string: "Send", attributes: attributes)
         btnSend.setAttributedTitle(attributedTitle, for: .normal)
 
-        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
        }
@@ -126,7 +127,7 @@ class Feedback_ViewController: UIViewController, UITextFieldDelegate {
         self.btnSend.backgroundColor = UIColor.white
         self.btnSend.titleLabel?.textColor = UIColor.lightGray
         let alert = UIAlertController(title: "Informasjonen er blitt sendt.", message: "Takk for din input. Vi vil ta kontakt med din organisasjon i den nærmeste fremtid.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Sendt!", style: .default, handler: { (action: UIAlertAction!) in
+        alert.addAction(UIAlertAction(title: "ok", style: .default, handler: { (action: UIAlertAction!) in
         }))
         self.present(alert, animated: true, completion: nil)
     }
